@@ -1,0 +1,31 @@
+{
+	"chmod": "0755",
+	"compression": "GZ",
+	"compactors": [
+		"Herrera\\Box\\Compactor\\Php"
+	],
+	"directories": [
+		"src/"
+	],
+	"files": [
+		"LICENSE"
+	],
+	"finder": [
+		{
+			"name": "*.php",
+			"exclude": [
+				"bin",
+				"tm"
+			],
+			"in": "vendor"
+		}
+	],
+	"extract": false,
+	"git-version": "package_version",
+	"intercept": true,
+	"main": "bin/main.php",
+	"metadata": "Static page generator",
+	"output": "build/static-page-generator.phar",
+	"shebang": "#!/usr/bin/env php",
+	"stub": true
+}

@@ -13,7 +13,10 @@
 		"source": "https://github.com/icehawk/static-page-generator"
 	},
 	"require": {
-		"php": ">=7.0"
+		"php": ">=7.0",
+		"symfony/console": "^3.1",
+		"psr/log": "^1.0",
+		"padraic/phar-updater": "^1.0"
 	},
 	"require-dev": {
 		"tm/tooly-composer-script": "^1.0"
@@ -34,6 +37,10 @@
 	},
 	"extra": {
 		"tools": {
+			"box": {
+				"url": "https://github.com/box-project/box2/releases/download/2.7.4/box-2.7.4.phar",
+				"only-dev": true
+			},
 			"phpunit": {
 				"url": "https://phar.phpunit.de/phpunit.phar",
 				"only-dev": true
