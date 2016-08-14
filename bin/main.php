@@ -1,13 +1,13 @@
-<?php declare(string_types = 1);
+<?php declare(strict_types = 1);
 /**
  * @author hollodotme
  */
 
 namespace IceHawk\StaticPageGenerator;
 
+use IceHawk\StaticPageGenerator\ConsoleCommands\GeneratePages;
 use IceHawk\StaticPageGenerator\ConsoleCommands\RollBack;
 use IceHawk\StaticPageGenerator\ConsoleCommands\SelfUpdate;
-use Symfony\Component\Console\Application;
 
 error_reporting( -1 );
 ini_set( 'display_errors', 'On' );
@@ -19,10 +19,10 @@ define( 'WORKING_DIR', getcwd() );
 
 try
 {
-	$app = new Application( 'Static page generator', '@package_version@' );
+	$app = new StaticPageGenerator( 'Static page generator', '@package_version@' );
 	$app->addCommands(
 		[
-			new GenerateComponent( 'generate:component' ),
+			new GeneratePages( 'generate:pages' ),
 			new SelfUpdate( 'self-update' ),
 			new RollBack( 'rollback' ),
 		]

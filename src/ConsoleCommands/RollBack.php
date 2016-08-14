@@ -1,4 +1,4 @@
-<?php declare(string_types = 1);
+<?php declare(strict_types = 1);
 /**
  * @author hollodotme
  */
