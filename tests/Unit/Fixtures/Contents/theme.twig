@@ -1,0 +1,94 @@
+{% macro subTree(loopPage, pages, breadCrumb) %}
+	<li{% if loopPage.getUri in breadCrumb|keys %} class="active"{% endif %}>
+		<a href="{{ loopPage.getUri }}">{{ loopPage.getNavName }}</a>
+		{% if loopPage.hasChildren %}
+			<ul class="nav">
+				{% import _self as nav %}
+				{% for child in pages.getChildrenOf(loopPage) %}
+					{{ nav.subTree(child, pages) }}
+				{% endfor %}
+			</ul>
+		{% endif %}
+	</li>
+{% endmacro subTree %}
+
+{% import _self as nav %}
+
+<!doctype html>
+<html lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<title>{{ page.getPageTitle }} | {{ pages.getProjectName }}</title>
+	<meta name="keywords" content="{{ page.getTags|join(', ') }}">
+	<meta name="description" content="{{ page.getDescription }}">
+	<meta name="generator" content="IceHawk Static Page Generator"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="{{ pages.getBaseUrl ~ '/css/webfont.css' }}">
+	<link rel="stylesheet" href="/css/styles.css">
+	<script src="https://use.fontawesome.com/12e03fffec.js" async="async"></script>
+</head>
+<body>
+
+<div class="page-container">
+
+	<!-- top navbar -->
+	<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="offcanvas" data-target=".sidebar-nav">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/">
+					<img alt="IceHawk" src="https://icehawk.github.io/images/logo_121x100.png" class="img-responsive">
+				</a>
+			</div>
+			<ul class="nav navbar-nav hidden-xs hidden-sm">
+				<li class="">
+					<a>IceHawk - A micro-framework respecting CQRS - written for php7</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="container">
+		<div class="row row-offcanvas row-offcanvas-left">
+
+			<!-- sidebar -->
+			<div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+				<ul class="nav">
+					{% for loopPage in pages.getPageConfigsAtLevel(2) %}
+
+						{{ nav.subTree(loopPage, pages, breadCrumb) }}
+
+					{% endfor %}
+				</ul>
+			</div>
+
+			<!-- main area -->
+			<div class="col-xs-12 col-sm-9" id="mainstage">
+
+				<ul class="breadcrumb hidden-xs hidden-sm">
+					{% for uri, title in breadCrumb %}
+						<li{% if loop.last %} class="active"{% endif %}>
+							<a href="{{ uri }}">{{ title }}</a>
+						</li>
+					{% endfor %}
+				</ul>
+
+				{% block content %}{% endblock %}
+
+			</div><!-- /.col-xs-12 main -->
+		</div><!--/.row-->
+	</div><!--/.container-->
+</div><!--/.page-container-->
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/scripts.js"></script>
+
+</body>
+</html>

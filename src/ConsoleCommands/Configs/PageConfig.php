@@ -87,4 +87,9 @@ final class PageConfig
 	{
 		return $this->configData['children'] ?? [];
 	}
+
+	public function hasChildren() : bool
+	{
+		return !empty($this->getChildren());
+	}
 }

@@ -1,5 +1,5 @@
 {
-	"projectName": "IceHawk - PHP micro-framework respecting CQRS",
+	"projectName": "IceHawk",
 	"baseUrl": "https://icehawk.github.io",
 	"outputDir": "../../../build/output/",
 	"contentsDir": "Contents/",
@@ -79,7 +79,7 @@
 		},
 		"/docs/icehawk.html": {
 			"pageLevel": 3,
-			"navName": "Documentation",
+			"navName": "IceHawk",
 			"pageTitle": "IceHawk component",
 			"description": "IceHawk - components documentation",
 			"language": "en",

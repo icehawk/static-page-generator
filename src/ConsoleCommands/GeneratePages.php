@@ -48,13 +48,14 @@ final class GeneratePages extends AbstractConsoleCommand
 
 			$this->style->title( sprintf( 'Genrating pages for project: %s', $pagesConfig->getProjectName() ) );
 
-			$pages = iterator_to_array( $pagesConfig->getPageConfigsByFilter() );
+			$pages = iterator_to_array( $pagesConfig->getAllPages() );
 
 			$progressBar = $this->style->createProgressBar( count( $pages ) );
 			$progressBar->setFormat( ' %current%/%max% [%bar%] %percent:3s%% | %message%' );
 			$progressBar->start();
 
-			foreach ( $pagesConfig->getPageConfigsByFilter() as $pageConfig )
+			/** @var PageConfig $pageConfig */
+			foreach ( $pages as $pageConfig )
 			{
 				$progressBar->setMessage( $pageConfig->getUri() );
 
@@ -131,6 +132,7 @@ final class GeneratePages extends AbstractConsoleCommand
 			$content    = $contentRenderer->render( $pageConfig->getContentFile() );
 
 			$data = [
+				'pages'      => $pagesConfig,
 				'page'       => $pageConfig,
 				'breadCrumb' => $breadCrumb,
 				'content'    => $content,

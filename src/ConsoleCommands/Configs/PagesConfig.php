@@ -80,6 +80,11 @@ final class PagesConfig
 		);
 	}
 
+	public function getAllPages() : \Generator
+	{
+		yield from $this->getPageConfigsByFilter();
+	}
+
 	/**
 	 * @param callable $filter
 	 *
