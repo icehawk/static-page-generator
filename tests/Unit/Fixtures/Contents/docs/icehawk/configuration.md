@@ -1,0 +1,1 @@
+# IceHawk configuration - Component documentation

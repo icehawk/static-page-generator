@@ -12,3 +12,5 @@ composer.lock
 build/api/
 build/phpdox/
 build/logs/
+build/output/
+!.gitkeep

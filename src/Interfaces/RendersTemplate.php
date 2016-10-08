@@ -11,5 +11,5 @@ namespace IceHawk\StaticPageGenerator\Interfaces;
  */
 interface RendersTemplate
 {
-	public function render( string $template, array $data ) : string;
+	public function render( string $template, array $data = [] ) : string;
 }

@@ -16,7 +16,7 @@ final class Twig implements RendersTemplate
 	/** @var \Twig_Environment */
 	private $twigEnvironment;
 
-	public function __construct( array $searchPaths = [ WORKING_DIR ] )
+	public function __construct( array $searchPaths )
 	{
 		$loader                = new \Twig_Loader_Filesystem( $searchPaths );
 		$this->twigEnvironment = new \Twig_Environment(
@@ -31,7 +31,7 @@ final class Twig implements RendersTemplate
 		$this->twigEnvironment->addExtension( new \Twig_Extension_Debug() );
 	}
 
-	public function render( string $template, array $data ) : string
+	public function render( string $template, array $data = [] ) : string
 	{
 		return $this->twigEnvironment->render( $template, $data );
 	}

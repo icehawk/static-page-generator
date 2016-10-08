@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * @author hollodotme
  */
@@ -12,20 +12,30 @@ namespace IceHawk\StaticPageGenerator\ConsoleCommands\Configs;
 final class PageConfig
 {
 	/** @var string */
-	private $path;
+	private $uri;
 
 	/** @var array */
 	private $configData;
 
-	public function __construct( string $path, array $configData )
+	public function __construct( string $uri, array $configData )
 	{
-		$this->path       = $path;
+		$this->uri        = $uri;
 		$this->configData = $configData;
 	}
 
-	public function getPath(): string
+	public function getUri(): string
 	{
-		return $this->path;
+		return $this->uri;
+	}
+
+	public function getPageLevel() : int
+	{
+		return (int)$this->getValue( 'pageLevel' );
+	}
+
+	private function getValue( $key ) : string
+	{
+		return (string)($this->configData[ $key ] ?? '');
 	}
 
 	public function getPageTitle() : string
@@ -33,14 +43,9 @@ final class PageConfig
 		return $this->getValue( 'pageTitle' );
 	}
 
-	private function getValue( $key ) : string
+	public function getDescription() : string
 	{
-		return $this->configData[ $key ] ?? '';
-	}
-
-	public function getMetaDescription() : string
-	{
-		return $this->getValue( 'metaDescription' );
+		return $this->getValue( 'description' );
 	}
 
 	public function getNavName() : string
@@ -55,7 +60,7 @@ final class PageConfig
 
 	public function getTags() : array
 	{
-		return $this->configData['tags'] ?? [ ];
+		return $this->configData['tags'] ?? [];
 	}
 
 	public function getContentType() : string
@@ -76,5 +81,10 @@ final class PageConfig
 	public function getContentFile() : string
 	{
 		return $this->getValue( 'contentFile' );
+	}
+
+	public function getChildren() : array
+	{
+		return $this->configData['children'] ?? [];
 	}
 }

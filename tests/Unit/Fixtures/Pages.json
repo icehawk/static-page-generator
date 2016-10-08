@@ -1,0 +1,162 @@
+{
+	"projectName": "IceHawk - PHP micro-framework respecting CQRS",
+	"baseUrl": "https://icehawk.github.io",
+	"outputDir": "../../../build/output/",
+	"contentsDir": "Contents/",
+	"pages": {
+		"/index.html": {
+			"pageLevel": 1,
+			"navName": "Home",
+			"pageTitle": "Home",
+			"description": "IceHawk components for building fast, reliable CQRS web applications and APIs",
+			"language": "en",
+			"imageUrl": "/images/logo.png",
+			"tags": [
+				"PHP",
+				"CQRS",
+				"API",
+				"IceHawk",
+				"components",
+				"applications"
+			],
+			"contentType": "html",
+			"renderer": "twig",
+			"template": "home.twig",
+			"contentFile": "",
+			"children": [
+				"/components.html",
+				"/docs.html"
+			]
+		},
+		"/components.html": {
+			"pageLevel": 2,
+			"navName": "Components",
+			"pageTitle": "Components",
+			"description": "IceHawk components for building fast, reliable CQRS web applications and APIs",
+			"language": "en",
+			"imageUrl": "/images/logo.png",
+			"tags": [
+				"components",
+				"applications",
+				"pubsub",
+				"session",
+				"forms",
+				"IceHawk",
+				"routing",
+				"publish",
+				"subscribe"
+			],
+			"contentType": "markdown",
+			"renderer": "twig",
+			"template": "page.twig",
+			"contentFile": "components.md",
+			"children": []
+		},
+		"/docs.html": {
+			"pageLevel": 2,
+			"navName": "Documentation",
+			"pageTitle": "Documentation",
+			"description": "IceHawk components documentation",
+			"language": "en",
+			"imageUrl": "/images/logo.png",
+			"tags": [
+				"CQRS",
+				"IceHawk",
+				"components",
+				"pubsub",
+				"session",
+				"forms",
+				"routing",
+				"documentation"
+			],
+			"contentType": "markdown",
+			"renderer": "twig",
+			"template": "page.twig",
+			"contentFile": "documentation.md",
+			"children": [
+				"/docs/icehawk.html"
+			]
+		},
+		"/docs/icehawk.html": {
+			"pageLevel": 3,
+			"navName": "Documentation",
+			"pageTitle": "IceHawk component",
+			"description": "IceHawk - components documentation",
+			"language": "en",
+			"imageUrl": "/images/logo.png",
+			"tags": [
+				"IceHawk",
+				"components",
+				"applications",
+				"routing",
+				"documentation"
+			],
+			"contentType": "markdown",
+			"renderer": "twig",
+			"template": "page.twig",
+			"contentFile": "docs/icehawk.md",
+			"children": [
+				"/docs/icehawk/installation.html",
+				"/docs/icehawk/configuration.html",
+				"/docs/icehawk/delegation.html"
+			]
+		},
+		"/docs/icehawk/installation.html": {
+			"pageLevel": 4,
+			"navName": "Installation",
+			"pageTitle": "IceHawk installation",
+			"description": "IceHawk installation - components documentation",
+			"language": "en",
+			"imageUrl": "/images/logo.png",
+			"tags": [
+				"IceHawk",
+				"routing",
+				"documentation",
+				"installation"
+			],
+			"contentType": "markdown",
+			"renderer": "twig",
+			"template": "page.twig",
+			"contentFile": "docs/icehawk/installation.md",
+			"children": []
+		},
+		"/docs/icehawk/configuration.html": {
+			"pageLevel": 4,
+			"navName": "Configuration",
+			"pageTitle": "IceHawk configuration",
+			"description": "IceHawk installation - components documentation",
+			"language": "en",
+			"imageUrl": "/images/logo.png",
+			"tags": [
+				"IceHawk",
+				"routing",
+				"documentation",
+				"configuration"
+			],
+			"contentType": "markdown",
+			"renderer": "twig",
+			"template": "page.twig",
+			"contentFile": "docs/icehawk/configuration.md",
+			"children": []
+		},
+		"/docs/icehawk/delegation.html": {
+			"pageLevel": 4,
+			"navName": "Delegation",
+			"pageTitle": "IceHawk delegation",
+			"description": "IceHawk delegation - components documentation",
+			"language": "en",
+			"imageUrl": "/images/logo.png",
+			"tags": [
+				"IceHawk",
+				"routing",
+				"documentation",
+				"delegation"
+			],
+			"contentType": "markdown",
+			"renderer": "twig",
+			"template": "page.twig",
+			"contentFile": "docs/icehawk/delegation.md",
+			"children": []
+		}
+	}
+}
