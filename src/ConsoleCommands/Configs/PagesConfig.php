@@ -189,7 +189,7 @@ final class PagesConfig
 
 	public function getBreadCrumbFor( PageConfig $pageConfig ) : array
 	{
-		$breadCrumb = [$pageConfig->getUri() => $pageConfig->getPageTitle()];
+		$breadCrumb = [$pageConfig->getUri() => $pageConfig->getNavName()];
 
 		try
 		{
