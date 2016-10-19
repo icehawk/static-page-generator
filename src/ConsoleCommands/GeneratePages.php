@@ -35,6 +35,11 @@ final class GeneratePages extends AbstractConsoleCommand
 		);
 	}
 
+	private function getFullPath( string $dir, string $file ) : string
+	{
+		return rtrim( $dir, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . ltrim( $file, DIRECTORY_SEPARATOR );
+	}
+
 	protected function execute( InputInterface $input, OutputInterface $output )
 	{
 		$startTime     = microtime( true );
@@ -138,7 +143,9 @@ final class GeneratePages extends AbstractConsoleCommand
 				'content'    => $content,
 			];
 
-			return $pageRenderer->render( $pageConfig->getTemplate(), $data );
+			$pageContent = $pageRenderer->render( $pageConfig->getTemplate(), $data );
+
+			return $this->getContentWithReplacements( $pageContent, $pagesConfig );
 		}
 		catch ( InvalidRenderer $e )
 		{
@@ -148,9 +155,15 @@ final class GeneratePages extends AbstractConsoleCommand
 		}
 	}
 
-	private function getFullPath( string $dir, string $file ) : string
+	private function getContentWithReplacements( string $pageContent, PagesConfig $pagesConfig ) : string
 	{
-		return rtrim( $dir, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . ltrim( $file, DIRECTORY_SEPARATOR );
+		$replacements = $pagesConfig->getReplacements();
+		$search       = array_keys( $replacements );
+		$replace      = array_values( $replacements );
+
+		$contentWithReplacements = str_replace( $search, $replace, $pageContent );
+
+		return $contentWithReplacements;
 	}
 
 	private function savePage( string $outputDir, string $fileName, string $content ) : bool

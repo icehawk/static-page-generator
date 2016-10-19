@@ -65,6 +65,11 @@ final class PagesConfig
 		return $contentsDirReal;
 	}
 
+	public function getReplacements() : array
+	{
+		return $this->configData['replacements'] ?? [];
+	}
+
 	private function getValue( $key ) : string
 	{
 		return $this->configData[ $key ] ?? '';
