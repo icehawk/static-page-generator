@@ -32,8 +32,8 @@ final class GeneratePages extends AbstractConsoleCommand
 		$this->addArgument(
 			'config',
 			InputArgument::OPTIONAL,
-			'Specifies the config to use',
-			$this->getFullPath( WORKING_DIR, 'Pages.json' )
+			'Specifies the project config to use',
+			$this->getFullPath( WORKING_DIR, 'Project.json' )
 		);
 	}
 
