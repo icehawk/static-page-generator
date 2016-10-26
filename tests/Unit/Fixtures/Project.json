@@ -1,8 +1,11 @@
 {
-	"projectName": "IceHawk",
+	"name": "IceHawk",
 	"baseUrl": "https://icehawk.github.io",
 	"outputDir": "../../../build/output/",
 	"contentsDir": "Contents/",
+	"replacements": {
+		"@unit@": "test"
+	},
 	"pages": {
 		"/index.html": {
 			"pageLevel": 1,

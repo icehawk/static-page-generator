@@ -6,24 +6,24 @@
 namespace IceHawk\StaticPageGenerator\Tests\Unit\Configs;
 
 use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig;
-use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PagesConfig;
+use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig;
 
 /**
- * Class PagesConfigTest
+ * Class ProjectConfigTest
  * @package IceHawk\StaticPageGenerator\Tests\Unit\Configs
  */
-class PagesConfigTest extends \PHPUnit_Framework_TestCase
+class ProjectConfigTest extends \PHPUnit_Framework_TestCase
 {
-	/** @var PagesConfig */
-	private $pagesConfig;
+	/** @var ProjectConfig */
+	private $projectConfig;
 
 	public function setUp()
 	{
 		$configDir  = __DIR__ . '/../Fixtures';
-		$configFile = $configDir . DIRECTORY_SEPARATOR . 'Pages.json';
+		$configFile = $configDir . DIRECTORY_SEPARATOR . 'Project.json';
 		$configData = json_decode( file_get_contents( $configFile ), true );
 
-		$this->pagesConfig = new PagesConfig( $configDir, $configData );
+		$this->projectConfig = new ProjectConfig( $configDir, $configData );
 	}
 
 	public function testCanGetProjectData()
@@ -31,10 +31,21 @@ class PagesConfigTest extends \PHPUnit_Framework_TestCase
 		$outputDirReal   = realpath( __DIR__ . '/../../../build/output' );
 		$contentsDirReal = realpath( __DIR__ . '/../Fixtures/Contents' );
 
-		$this->assertEquals( 'IceHawk - PHP micro-framework respecting CQRS', $this->pagesConfig->getProjectName() );
-		$this->assertEquals( 'https://icehawk.github.io', $this->pagesConfig->getBaseUrl() );
-		$this->assertEquals( $outputDirReal, $this->pagesConfig->getOutputDir() );
-		$this->assertEquals( $contentsDirReal, $this->pagesConfig->getContentsDir() );
+		$this->assertEquals( 'IceHawk', $this->projectConfig->getName() );
+		$this->assertEquals( 'https://icehawk.github.io', $this->projectConfig->getBaseUrl() );
+		$this->assertEquals( $outputDirReal, $this->projectConfig->getOutputDir() );
+		$this->assertEquals( $contentsDirReal, $this->projectConfig->getContentsDir() );
+	}
+
+	public function testReplacementsIncludeProjectData()
+	{
+		$expectedReplacements = [
+			'@unit@'    => 'test',
+			'@baseUrl@' => 'https://icehawk.github.io',
+			'@name@'    => 'IceHawk',
+		];
+
+		$this->assertEquals( $expectedReplacements, $this->projectConfig->getReplacements() );
 	}
 
 	/**
@@ -45,7 +56,7 @@ class PagesConfigTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testCanGetPageConfigsAtLevel( int $level, int $expectedCount )
 	{
-		$pageConfigs = $this->pagesConfig->getPageConfigsAtLevel( $level );
+		$pageConfigs = $this->projectConfig->getPageConfigsAtLevel( $level );
 
 		$count = 0;
 		foreach ( $pageConfigs as $pageConfig )
@@ -66,7 +77,7 @@ class PagesConfigTest extends \PHPUnit_Framework_TestCase
 
 	public function testCanGetAllPageConfigs()
 	{
-		$pageConfigs = $this->pagesConfig->getPageConfigsByFilter();
+		$pageConfigs = $this->projectConfig->getPageConfigsByFilter();
 
 		$count = 0;
 		foreach ( $pageConfigs as $pageConfig )
@@ -91,7 +102,7 @@ class PagesConfigTest extends \PHPUnit_Framework_TestCase
 			]
 		);
 
-		$children = $this->pagesConfig->getChildrenOf( $pageConfig );
+		$children = $this->projectConfig->getChildrenOf( $pageConfig );
 
 		$count = 0;
 
@@ -106,7 +117,7 @@ class PagesConfigTest extends \PHPUnit_Framework_TestCase
 
 	public function testCanGetPagesGroupedByTags()
 	{
-		$groupedPages = $this->pagesConfig->getPageConfigsGroupedByTag();
+		$groupedPages = $this->projectConfig->getPageConfigsGroupedByTag();
 
 		$expectedTags = [
 			'PHP', 'CQRS', 'API', 'IceHawk', 'components', 'applications', 'pubsub', 'session', 'forms', 'routing',
@@ -137,7 +148,7 @@ class PagesConfigTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testCanGetPageByUri( string $uri, string $expectedPageTitle )
 	{
-		$pageConfig = $this->pagesConfig->getPageConfigForUri( $uri );
+		$pageConfig = $this->projectConfig->getPageConfigForUri( $uri );
 
 		$this->assertEquals( $expectedPageTitle, $pageConfig->getPageTitle() );
 	}
@@ -160,7 +171,7 @@ class PagesConfigTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testGetNotExistingPageThrowsException()
 	{
-		$this->pagesConfig->getPageConfigForUri( '/not/existing' );
+		$this->projectConfig->getPageConfigForUri( '/not/existing' );
 	}
 
 	/**
@@ -171,9 +182,9 @@ class PagesConfigTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testCanGetBreadCrumbForPageConfig( string $uri, array $expectedBreadCrumb )
 	{
-		$pageConfig = $this->pagesConfig->getPageConfigForUri( $uri );
+		$pageConfig = $this->projectConfig->getPageConfigForUri( $uri );
 
-		$breadCrumb = $this->pagesConfig->getBreadCrumbFor( $pageConfig );
+		$breadCrumb = $this->projectConfig->getBreadCrumbFor( $pageConfig );
 
 		$this->assertSame( $expectedBreadCrumb, $breadCrumb );
 	}
@@ -204,7 +215,7 @@ class PagesConfigTest extends \PHPUnit_Framework_TestCase
 				[
 					'/index.html'        => 'Home',
 					'/docs.html'         => 'Documentation',
-					'/docs/icehawk.html' => 'IceHawk component',
+					'/docs/icehawk.html' => 'IceHawk',
 				],
 			],
 			[
@@ -212,8 +223,8 @@ class PagesConfigTest extends \PHPUnit_Framework_TestCase
 				[
 					'/index.html'                     => 'Home',
 					'/docs.html'                      => 'Documentation',
-					'/docs/icehawk.html'              => 'IceHawk component',
-					'/docs/icehawk/installation.html' => 'IceHawk installation',
+					'/docs/icehawk.html'              => 'IceHawk',
+					'/docs/icehawk/installation.html' => 'Installation',
 				],
 			],
 			[
@@ -221,8 +232,8 @@ class PagesConfigTest extends \PHPUnit_Framework_TestCase
 				[
 					'/index.html'                      => 'Home',
 					'/docs.html'                       => 'Documentation',
-					'/docs/icehawk.html'               => 'IceHawk component',
-					'/docs/icehawk/configuration.html' => 'IceHawk configuration',
+					'/docs/icehawk.html'               => 'IceHawk',
+					'/docs/icehawk/configuration.html' => 'Configuration',
 				],
 			],
 			[
@@ -230,8 +241,8 @@ class PagesConfigTest extends \PHPUnit_Framework_TestCase
 				[
 					'/index.html'                   => 'Home',
 					'/docs.html'                    => 'Documentation',
-					'/docs/icehawk.html'            => 'IceHawk component',
-					'/docs/icehawk/delegation.html' => 'IceHawk delegation',
+					'/docs/icehawk.html'            => 'IceHawk',
+					'/docs/icehawk/delegation.html' => 'Delegation',
 				],
 			],
 		];

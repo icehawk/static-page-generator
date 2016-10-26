@@ -6,12 +6,13 @@
 namespace IceHawk\StaticPageGenerator\ConsoleCommands;
 
 use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig;
-use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PagesConfig;
+use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig;
 use IceHawk\StaticPageGenerator\Exceptions\ConfigNotFound;
 use IceHawk\StaticPageGenerator\Exceptions\InvalidRenderer;
 use IceHawk\StaticPageGenerator\Formatters\ByteFormatter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -27,6 +28,7 @@ final class GeneratePages extends AbstractConsoleCommand
 	protected function configure()
 	{
 		$this->setDescription( 'Generates static pages for the given config.' );
+		$this->addOption( 'baseUrl', 'b', InputOption::VALUE_OPTIONAL, 'Overwrites baseUrl setting in Pages.json' );
 		$this->addArgument(
 			'config',
 			InputArgument::OPTIONAL,
@@ -46,14 +48,15 @@ final class GeneratePages extends AbstractConsoleCommand
 		$this->style   = new SymfonyStyle( $input, $output );
 		$byteFormatter = new ByteFormatter();
 		$configPath    = $input->getArgument( 'config' );
+		$overwrites    = $this->getOverwrites( $input );
 
 		try
 		{
-			$pagesConfig = $this->loadConfig( $configPath );
+			$projectConfig = $this->loadConfig( $configPath, $overwrites );
 
-			$this->style->title( sprintf( 'Genrating pages for project: %s', $pagesConfig->getProjectName() ) );
+			$this->style->title( sprintf( 'Genrating pages for project: %s', $projectConfig->getName() ) );
 
-			$pages = iterator_to_array( $pagesConfig->getAllPages() );
+			$pages = iterator_to_array( $projectConfig->getAllPages() );
 
 			$progressBar = $this->style->createProgressBar( count( $pages ) );
 			$progressBar->setFormat( ' %current%/%max% [%bar%] %percent:3s%% | %message%' );
@@ -64,9 +67,9 @@ final class GeneratePages extends AbstractConsoleCommand
 			{
 				$progressBar->setMessage( $pageConfig->getUri() );
 
-				$pageContent = $this->generatePage( $pageConfig, $pagesConfig );
+				$pageContent = $this->generatePage( $pageConfig, $projectConfig );
 
-				$this->savePage( $pagesConfig->getOutputDir(), $pageConfig->getUri(), $pageContent );
+				$this->savePage( $projectConfig->getOutputDir(), $pageConfig->getUri(), $pageContent );
 
 				$progressBar->advance();
 			}
@@ -102,7 +105,16 @@ final class GeneratePages extends AbstractConsoleCommand
 		return 0;
 	}
 
-	private function loadConfig( string $configPath ) : PagesConfig
+	private function getOverwrites( InputInterface $input ) : array
+	{
+		$overwrites = [];
+
+		$overwrites['baseUrl'] = $input->getOption( 'baseUrl' );
+
+		return array_filter( $overwrites );
+	}
+
+	private function loadConfig( string $configPath, array $overwrites ) : ProjectConfig
 	{
 		if ( $configPath[0] !== '/' )
 		{
@@ -115,29 +127,30 @@ final class GeneratePages extends AbstractConsoleCommand
 		}
 
 		$configData = json_decode( file_get_contents( $configPath ), true );
+		$configData = array_merge( $configData, $overwrites );
 
-		return new PagesConfig( dirname( $configPath ), $configData );
+		return new ProjectConfig( dirname( $configPath ), $configData );
 	}
 
-	private function generatePage( PageConfig $pageConfig, PagesConfig $pagesConfig ) : string
+	private function generatePage( PageConfig $pageConfig, ProjectConfig $projectConfig ) : string
 	{
 		try
 		{
 			$pageRenderer = $this->getEnv()->getTemplateRenderer(
 				$pageConfig->getRenderer(),
-				[$pagesConfig->getContentsDir()]
+				[$projectConfig->getContentsDir()]
 			);
 
 			$contentRenderer = $this->getEnv()->getTemplateRenderer(
 				$pageConfig->getContentType(),
-				[$pagesConfig->getContentsDir()]
+				[$projectConfig->getContentsDir()]
 			);
 
-			$breadCrumb = $pagesConfig->getBreadCrumbFor( $pageConfig );
+			$breadCrumb = $projectConfig->getBreadCrumbFor( $pageConfig );
 			$content    = $contentRenderer->render( $pageConfig->getContentFile() );
 
 			$data = [
-				'pages'      => $pagesConfig,
+				'project'    => $projectConfig,
 				'page'       => $pageConfig,
 				'breadCrumb' => $breadCrumb,
 				'content'    => $content,
@@ -145,7 +158,7 @@ final class GeneratePages extends AbstractConsoleCommand
 
 			$pageContent = $pageRenderer->render( $pageConfig->getTemplate(), $data );
 
-			return $this->getContentWithReplacements( $pageContent, $pagesConfig );
+			return $this->getContentWithReplacements( $pageContent, $projectConfig );
 		}
 		catch ( InvalidRenderer $e )
 		{
@@ -155,9 +168,9 @@ final class GeneratePages extends AbstractConsoleCommand
 		}
 	}
 
-	private function getContentWithReplacements( string $pageContent, PagesConfig $pagesConfig ) : string
+	private function getContentWithReplacements( string $pageContent, ProjectConfig $projectConfig ) : string
 	{
-		$replacements = $pagesConfig->getReplacements();
+		$replacements = $projectConfig->getReplacements();
 		$search       = array_keys( $replacements );
 		$replace      = array_values( $replacements );
 

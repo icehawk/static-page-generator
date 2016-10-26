@@ -10,10 +10,10 @@ use IceHawk\StaticPageGenerator\Exceptions\PageConfigNotFound;
 use IceHawk\StaticPageGenerator\Exceptions\ParentPageConfigNotFound;
 
 /**
- * Class PagesConfig
+ * Class ProjectConfig
  * @package IceHawk\StaticPageGenerator\ConsoleCommands\Configs
  */
-final class PagesConfig
+final class ProjectConfig
 {
 	/** @var string */
 	private $configFileDir;
@@ -27,9 +27,9 @@ final class PagesConfig
 		$this->configData    = $configData;
 	}
 
-	public function getProjectName() : string
+	public function getName() : string
 	{
-		return $this->getValue( 'projectName' );
+		return $this->getValue( 'name' );
 	}
 
 	public function getBaseUrl() : string
@@ -67,7 +67,12 @@ final class PagesConfig
 
 	public function getReplacements() : array
 	{
-		return $this->configData['replacements'] ?? [];
+		$replacements = $this->configData['replacements'] ?? [];
+
+		$replacements['@baseUrl@'] = $this->getBaseUrl();
+		$replacements['@name@']    = $this->getName();
+
+		return $replacements;
 	}
 
 	private function getValue( $key ) : string
@@ -208,5 +213,10 @@ final class PagesConfig
 		$breadCrumb = array_merge( $this->getBreadCrumbFor( $parentPageConfig ), $breadCrumb );
 
 		return $breadCrumb;
+	}
+
+	public function getUrl( string $path ) : string
+	{
+		return $this->getBaseUrl() . $path;
 	}
 }
