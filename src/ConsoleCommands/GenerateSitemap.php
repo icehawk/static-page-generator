@@ -5,11 +5,10 @@
 
 namespace IceHawk\StaticPageGenerator\ConsoleCommands;
 
-use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig;
 use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig;
 use IceHawk\StaticPageGenerator\Exceptions\ConfigNotFound;
-use IceHawk\StaticPageGenerator\Exceptions\InvalidRenderer;
 use IceHawk\StaticPageGenerator\Formatters\ByteFormatter;
+use IceHawk\StaticPageGenerator\Sitemap\XmlSitemap;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -17,17 +16,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Class GeneratePages
+ * Class GenerateSitemap
  * @package IceHawk\StaticPageGenerator\ConsoleCommands
  */
-final class GeneratePages extends AbstractConsoleCommand
+final class GenerateSitemap extends AbstractConsoleCommand
 {
 	/** @var SymfonyStyle */
 	private $style;
 
 	protected function configure()
 	{
-		$this->setDescription( 'Generates static pages for the given config.' );
+		$this->setDescription( 'Generates static sitemap for the given config.' );
 		$this->addOption( 'baseUrl', 'b', InputOption::VALUE_OPTIONAL, 'Overwrites baseUrl setting in Project.json' );
 		$this->addArgument(
 			'config',
@@ -49,28 +48,14 @@ final class GeneratePages extends AbstractConsoleCommand
 		{
 			$projectConfig = $this->loadConfig( $configPath, $overwrites );
 
-			$this->style->title( sprintf( 'Genrating pages for project: %s', $projectConfig->getName() ) );
+			$this->style->title( sprintf( 'Genrating XML sitemap for project: %s', $projectConfig->getName() ) );
 
-			$pages = iterator_to_array( $projectConfig->getAllPages() );
+			$xmlSitemap = new XmlSitemap( $projectConfig );
+			$xmlString  = $xmlSitemap->generate();
 
-			$progressBar = $this->style->createProgressBar( count( $pages ) );
-			$progressBar->setFormat( ' %current%/%max% [%bar%] %percent:3s%% | %message%' );
-			$progressBar->start();
+			$this->saveSitemap( $projectConfig->getOutputDir(), 'sitemap.xml', $xmlString );
 
-			/** @var PageConfig $pageConfig */
-			foreach ( $pages as $pageConfig )
-			{
-				$progressBar->setMessage( $pageConfig->getUri() );
-
-				$pageContent = $this->generatePage( $pageConfig, $projectConfig );
-
-				$this->savePage( $projectConfig->getOutputDir(), $pageConfig->getUri(), $pageContent );
-
-				$progressBar->advance();
-			}
-
-			$progressBar->setMessage( 'All pages generated.' );
-			$progressBar->finish();
+			$this->style->text( 'Finished.' );
 			$this->style->text( '' );
 		}
 		catch ( ConfigNotFound $e )
@@ -127,54 +112,7 @@ final class GeneratePages extends AbstractConsoleCommand
 		return new ProjectConfig( dirname( $configPath ), $configData );
 	}
 
-	private function generatePage( PageConfig $pageConfig, ProjectConfig $projectConfig ) : string
-	{
-		try
-		{
-			$pageRenderer = $this->getEnv()->getTemplateRenderer(
-				$pageConfig->getRenderer(),
-				[$projectConfig->getContentsDir()]
-			);
-
-			$contentRenderer = $this->getEnv()->getTemplateRenderer(
-				$pageConfig->getContentType(),
-				[$projectConfig->getContentsDir()]
-			);
-
-			$breadCrumb = $projectConfig->getBreadCrumbFor( $pageConfig );
-			$content    = $contentRenderer->render( $pageConfig->getContentFile() );
-
-			$data = [
-				'project'    => $projectConfig,
-				'page'       => $pageConfig,
-				'breadCrumb' => $breadCrumb,
-				'content'    => $content,
-			];
-
-			$pageContent = $pageRenderer->render( $pageConfig->getTemplate(), $data );
-
-			return $this->getContentWithReplacements( $pageContent, $projectConfig );
-		}
-		catch ( InvalidRenderer $e )
-		{
-			$this->style->error( 'Invalid renderer set: ' . $e->getRenderer() . ' - skipping' );
-
-			return '';
-		}
-	}
-
-	private function getContentWithReplacements( string $pageContent, ProjectConfig $projectConfig ) : string
-	{
-		$replacements = $projectConfig->getReplacements();
-		$search       = array_keys( $replacements );
-		$replace      = array_values( $replacements );
-
-		$contentWithReplacements = str_replace( $search, $replace, $pageContent );
-
-		return $contentWithReplacements;
-	}
-
-	private function savePage( string $outputDir, string $fileName, string $content ) : bool
+	private function saveSitemap( string $outputDir, string $fileName, string $content ) : bool
 	{
 		$outputFile    = $this->getFullPath( $outputDir, $fileName );
 		$outputFileDir = dirname( $outputFile );

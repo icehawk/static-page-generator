@@ -90,6 +90,9 @@ final class ProjectConfig
 		);
 	}
 
+	/**
+	 * @return \Generator|PageConfig[]
+	 */
 	public function getAllPages() : \Generator
 	{
 		yield from $this->getPageConfigsByFilter();
@@ -126,13 +129,13 @@ final class ProjectConfig
 		{
 			foreach ( $pageConfig->getTags() as $tag )
 			{
-				if ( isset($tagReferences[ $tag ]) )
+				if ( isset( $tagReferences[ $tag ] ) )
 				{
 					$tagReferences[ $tag ][] = $pageConfig;
 				}
 				else
 				{
-					$tagReferences[ $tag ] = [$pageConfig];
+					$tagReferences[ $tag ] = [ $pageConfig ];
 				}
 			}
 		}
@@ -199,7 +202,7 @@ final class ProjectConfig
 
 	public function getBreadCrumbFor( PageConfig $pageConfig ) : array
 	{
-		$breadCrumb = [$pageConfig->getUri() => $pageConfig->getNavName()];
+		$breadCrumb = [ $pageConfig->getUri() => $pageConfig->getNavName() ];
 
 		try
 		{
