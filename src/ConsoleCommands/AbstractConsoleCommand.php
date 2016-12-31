@@ -16,6 +16,14 @@ abstract class AbstractConsoleCommand extends Command
 {
 	public function getEnv() : StaticPageGenerator
 	{
-		return $this->getApplication();
+		/** @var StaticPageGenerator $spg */
+		$spg = $this->getApplication();
+
+		return $spg;
+	}
+
+	final protected function getFullPath( string $dir, string $file ) : string
+	{
+		return rtrim( $dir, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . ltrim( $file, DIRECTORY_SEPARATOR );
 	}
 }

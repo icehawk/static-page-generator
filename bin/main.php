@@ -6,6 +6,7 @@
 namespace IceHawk\StaticPageGenerator;
 
 use IceHawk\StaticPageGenerator\ConsoleCommands\GeneratePages;
+use IceHawk\StaticPageGenerator\ConsoleCommands\GenerateSitemap;
 use IceHawk\StaticPageGenerator\ConsoleCommands\RollBack;
 use IceHawk\StaticPageGenerator\ConsoleCommands\SelfUpdate;
 
@@ -23,16 +24,17 @@ try
 	$app->addCommands(
 		[
 			new GeneratePages( 'generate:pages' ),
+			new GenerateSitemap( 'generate:sitemap' ),
 			new SelfUpdate( 'self-update' ),
 			new RollBack( 'rollback' ),
 		]
 	);
 	$code = $app->run();
-	exit($code);
+	exit( $code );
 }
 catch ( \Throwable $e )
 {
 	echo "Uncaught " . get_class( $e ) . " with message: " . $e->getMessage() . "\n";
 	echo $e->getTraceAsString();
-	exit(1);
+	exit( 1 );
 }
