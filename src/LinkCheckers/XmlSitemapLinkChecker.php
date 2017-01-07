@@ -11,26 +11,21 @@
  * all copies or substantial portions of the Software.
  */
 
-namespace IceHawk\StaticPageGenerator\Exceptions;
+namespace IceHawk\StaticPageGenerator\LinkCheckers;
 
 /**
- * Class InvalidRenderer
- * @package IceHawk\StaticPageGenerator\Exceptions
+ * Class XmlSitemapLinkChecker
+ * @package IceHawk\StaticPageGenerator\LinkCheckers
  */
-final class InvalidRenderer extends StaticPageGeneratorException
+final class XmlSitemapLinkChecker extends AbstractLinkChecker
 {
-	/** @var string */
-	private $renderer;
-
-	public function getRenderer(): string
+	protected function getLinkPattern() : string
 	{
-		return $this->renderer;
+		return "#\<loc\>(.+)\<\/loc\>#i";
 	}
 
-	public function withRenderer( string $renderer ): InvalidRenderer
+	protected function getFilePattern() : string
 	{
-		$this->renderer = $renderer;
-
-		return $this;
+		return "#\bsitemap\.xml$#i";
 	}
 }
