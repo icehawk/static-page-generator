@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a CHANGELOG](http://keepachangelog.com).
 
+## Unreleased
+
+### Added
+
+- Command `check:links` that checks all HTML links in generated content and all XML sitemap links.
+
 ## [1.2.0] - 2016-12-31
 
 ### Added

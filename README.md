@@ -9,3 +9,7 @@
 ### Generate XML sitemap
 
 `generate:sitemap [-b <baseUrl>|--baseUrl=<baseUrl>] /path/to/Project.json`
+
+### Check links
+
+`check:links [-g|--generate] [-t|--timeout=<sec>] [-b <baseUrl>|--baseUrl=<baseUrl>] /path/to/Project.json`
