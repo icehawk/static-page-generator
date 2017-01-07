@@ -24,6 +24,9 @@ abstract class AbstractLinkChecker
 	/** @var string */
 	private $outputDir;
 
+	/** @var string */
+	private $baseUrl;
+
 	/** @var int */
 	private $readTimeout;
 
@@ -36,9 +39,10 @@ abstract class AbstractLinkChecker
 	/** @var array */
 	private $checkedLinks;
 
-	public function __construct( string $outputDir, int $readTimeout = Defaults::READ_TIMEOUT )
+	public function __construct( string $outputDir, string $baseUrl, int $readTimeout = Defaults::READ_TIMEOUT )
 	{
 		$this->outputDir    = $outputDir;
+		$this->baseUrl = $baseUrl;
 		$this->readTimeout  = $readTimeout;
 		$this->linkPattern  = $this->getLinkPattern();
 		$this->filePattern  = $this->getFilePattern();
@@ -49,24 +53,15 @@ abstract class AbstractLinkChecker
 
 	abstract protected function getFilePattern() : string;
 
-	public function check( SymfonyStyle $style, array &$failedLinks = [] ) : int
+	public function check( SymfonyStyle $style, array &$failedLinks = [], array &$skippedLinks = [] ) : int
 	{
-		$links       = $this->collectLinks();
-		$totalLinks  = count( $links );
-		$progressBar = $style->createProgressBar( $totalLinks );
+		$baseUrlQuoted   = preg_quote( $this->baseUrl, '#' );
+		$outputDirQuoted = preg_quote( $this->outputDir, '#' );
+		$links           = $this->collectLinks();
+		$totalLinks      = count( $links );
+		$progressBar     = $style->createProgressBar( $totalLinks );
+
 		$progressBar->setFormat( ' %current%/%max% [%bar%] %percent:3s%% | %message%' );
-
-		# Set check method to HEAD
-		# Set check timeout
-		stream_context_set_default(
-			[
-				'http' => [
-					'method'  => 'HEAD',
-					'timeout' => $this->readTimeout,
-				],
-			]
-		);
-
 		$progressBar->start();
 
 		foreach ( $links as $filePath => $fileLinks )
@@ -78,20 +73,57 @@ abstract class AbstractLinkChecker
 			{
 				try
 				{
-					$response = $this->checkedLinks[ $link ] ?? get_headers( $link, 1 )[0];
+					# Convert relative anchor links
+					if ( $link{0} == '#' )
+					{
+						$link = sprintf(
+							'%s%s%s',
+							$this->baseUrl,
+							preg_replace( "#^{$outputDirQuoted}#", '', $filePath ),
+							$link
+						);
+					}
 
-					if ( substr( $response, -6 ) != '200 OK' )
+					if ( !preg_match( "#^{$baseUrlQuoted}#", $link ) )
+					{
+						# Convert relative URLs
+						if ( $link{0} != '/' && !preg_match( "#^https?\://#i", $link ) )
+						{
+							$link = sprintf(
+								'%s%s/%s',
+								$this->baseUrl,
+								dirname( preg_replace( "#^{$outputDirQuoted}#", '', $filePath ) ),
+								$link
+							);
+						}
+						# Mark absolute URLs without base URL as failure
+						elseif ( $link{0} == '/' )
+						{
+							$failedLinks[] = [ $filePath, $link, 'No base URL' ];
+							continue;
+						}
+						# Skip all external links
+						else
+						{
+							$skippedLinks[] = [ $filePath, $link, 'External link' ];
+							continue;
+						}
+					}
+
+					$response                    = $this->checkedLinks[ $link ] ?? $this->getResponseCode( $link );
+					$this->checkedLinks[ $link ] = $response;
+
+					if ( $response !== 200 )
 					{
 						$failedLinks[] = [ $filePath, $link, $response ];
 					}
 				}
 				catch ( \Throwable $e )
 				{
-					$response      = $e->getMessage();
-					$failedLinks[] = [ $filePath, $link, $response ];
+					$response                    = $e->getMessage();
+					$failedLinks[]               = [ $filePath, $link, $response ];
+					$this->checkedLinks[ $link ] = $response;
 				}
-
-				$this->checkedLinks[ $link ] = $response;
 			}
 
 			$progressBar->advance();
@@ -127,5 +159,24 @@ abstract class AbstractLinkChecker
 		}
 
 		return $links;
+	}
+
+	private function getResponseCode( string $url ) : int
+	{
+		$ch = curl_init();
+
+		curl_setopt( $ch, CURLOPT_URL, trim( $url ) );
+		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'HEAD' );
+		curl_setopt( $ch, CURLOPT_HEADER, true );
+		curl_setopt( $ch, CURLOPT_NOBODY, true );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, $this->readTimeout );
+		curl_setopt( $ch, CURLOPT_TIMEOUT, $this->readTimeout );
+		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, true );
+
+		curl_exec( $ch );
+		$response = curl_getinfo( $ch );
+
+		return $response['http_code'];
 	}
 }

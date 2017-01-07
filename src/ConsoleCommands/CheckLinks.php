@@ -131,10 +131,16 @@ final class CheckLinks extends AbstractConsoleCommand
 
 	private function checkHtmlLinks( ProjectConfig $projectConfig, int $readTimeout ) : int
 	{
-		$linkChecker = new HtmlLinkChecker( $projectConfig->getOutputDir(), $readTimeout );
+		$linkChecker = new HtmlLinkChecker(
+			$projectConfig->getOutputDir(),
+			$projectConfig->getBaseUrl(),
+			$readTimeout
+		);
 
-		$failedLinks = [];
-		$result      = $linkChecker->check( $this->style, $failedLinks );
+		$failedLinks  = [];
+		$skippedLinks = [];
+
+		$result = $linkChecker->check( $this->style, $failedLinks, $skippedLinks );
 
 		if ( !empty( $failedLinks ) )
 		{
@@ -150,15 +156,40 @@ final class CheckLinks extends AbstractConsoleCommand
 			$this->style->text( '' );
 		}
 
+		if ( !empty( $skippedLinks ) )
+		{
+			if ( $this->style->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE )
+			{
+				$this->style->text( '' );
+				$this->style->text( '<fg=yellow>Some HTML links have been skipped:</>' );
+				$headers = [ 'Filepath', 'Link', 'Reason' ];
+				$this->style->table( $headers, $skippedLinks );
+				$this->style->text( '' );
+			}
+			else
+			{
+				$skippedLinksCount = count( $skippedLinks );
+				$this->style->text( '' );
+				$this->style->text( "<fg=yellow>{$skippedLinksCount} HTML links have been skipped.</>" );
+				$this->style->text( '' );
+			}
+		}
+
 		return $result;
 	}
 
 	private function checkXmlSitemapLinks( ProjectConfig $projectConfig, int $readTimeout ) : int
 	{
-		$linkChecker = new XmlSitemapLinkChecker( $projectConfig->getOutputDir(), $readTimeout );
+		$linkChecker = new XmlSitemapLinkChecker(
+			$projectConfig->getOutputDir(),
+			$projectConfig->getBaseUrl(),
+			$readTimeout
+		);
 
-		$failedLinks = [];
-		$result      = $linkChecker->check( $this->style, $failedLinks );
+		$failedLinks  = [];
+		$skippedLinks = [];
+
+		$result = $linkChecker->check( $this->style, $failedLinks, $skippedLinks );
 
 		if ( !empty( $failedLinks ) )
 		{
@@ -172,6 +203,25 @@ final class CheckLinks extends AbstractConsoleCommand
 			$this->style->text( '' );
 			$this->style->text( '<fg=green>√ All Sitemap links OK</>' );
 			$this->style->text( '' );
+		}
+
+		if ( !empty( $skippedLinks ) )
+		{
+			if ( $this->style->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE )
+			{
+				$this->style->text( '' );
+				$this->style->text( '<fg=yellow>Some Sitemap links have been skipped:</>' );
+				$headers = [ 'Filepath', 'Link', 'Reason' ];
+				$this->style->table( $headers, $skippedLinks );
+				$this->style->text( '' );
+			}
+			else
+			{
+				$skippedLinksCount = count( $skippedLinks );
+				$this->style->text( '' );
+				$this->style->text( "<fg=yellow>{$skippedLinksCount} Sitemap links have been skipped.</>" );
+				$this->style->text( '' );
+			}
 		}
 
 		return $result;
