@@ -19,11 +19,11 @@ namespace IceHawk\StaticPageGenerator\Formatters;
  */
 final class ByteFormatter
 {
-	public function format( int $bytes )
+	public function format( int $bytes ): string
 	{
 		$unit = [ 'b', 'kb', 'mb', 'gb', 'tb', 'pb' ];
 		$i    = (int)floor( log( $bytes, 1024 ) );
 
-		return round( $bytes / pow( 1024, $i ), 2 ) . ' ' . $unit[ $i ];
+		return round( $bytes / (1024 ** $i), 2 ) . ' ' . $unit[ $i ];
 	}
 }

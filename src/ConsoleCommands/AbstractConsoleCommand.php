@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2016-2017 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,24 +20,23 @@ use Symfony\Component\Console\Command\Command;
 
 /**
  * Class AbstractConsoleCommand
+ *
  * @package IceHawk\StaticPageGenerator\ConsoleCommands
  */
 abstract class AbstractConsoleCommand extends Command
 {
-	public function getEnv() : StaticPageGenerator
+	public function getEnv(): StaticPageGenerator
 	{
 		/** @var StaticPageGenerator $spg */
-		$spg = $this->getApplication();
-
-		return $spg;
+		return $this->getApplication();
 	}
 
-	final protected function getFullPath( string $dir, string $file ) : string
+	final protected function getFullPath( string $dir, string $file ): string
 	{
 		return rtrim( $dir, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . ltrim( $file, DIRECTORY_SEPARATOR );
 	}
 
-	final protected function loadConfig( string $configPath, array $overwrites ) : ProjectConfig
+	final protected function loadConfig( string $configPath, array $overwrites ): ProjectConfig
 	{
 		if ( $configPath[0] !== '/' )
 		{

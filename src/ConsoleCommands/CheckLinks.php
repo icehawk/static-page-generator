@@ -111,7 +111,7 @@ final class CheckLinks extends AbstractConsoleCommand
 					),
 					sprintf(
 						'Time elapsed: %f Seconds',
-						round( (microtime( true ) - $startTime), 6 )
+						round( microtime( true ) - $startTime, 6 )
 					),
 				]
 			);
@@ -158,7 +158,7 @@ final class CheckLinks extends AbstractConsoleCommand
 
 		if ( !empty( $skippedLinks ) )
 		{
-			if ( $this->style->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE )
+			if ( $this->style->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE )
 			{
 				$this->style->text( '' );
 				$this->style->text( '<fg=yellow>Some HTML links have been skipped:</>' );
@@ -207,7 +207,7 @@ final class CheckLinks extends AbstractConsoleCommand
 
 		if ( !empty( $skippedLinks ) )
 		{
-			if ( $this->style->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE )
+			if ( $this->style->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE )
 			{
 				$this->style->text( '' );
 				$this->style->text( '<fg=yellow>Some Sitemap links have been skipped:</>' );

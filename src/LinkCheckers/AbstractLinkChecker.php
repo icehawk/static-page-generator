@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2016-2017 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -17,6 +17,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Class AbstractLinkChecker
+ *
  * @package IceHawk\StaticPageGenerator\LinkCheckers
  */
 abstract class AbstractLinkChecker
@@ -42,18 +43,18 @@ abstract class AbstractLinkChecker
 	public function __construct( string $outputDir, string $baseUrl, int $readTimeout = Defaults::READ_TIMEOUT )
 	{
 		$this->outputDir    = $outputDir;
-		$this->baseUrl = $baseUrl;
+		$this->baseUrl      = $baseUrl;
 		$this->readTimeout  = $readTimeout;
 		$this->linkPattern  = $this->getLinkPattern();
 		$this->filePattern  = $this->getFilePattern();
 		$this->checkedLinks = [];
 	}
 
-	abstract protected function getLinkPattern() : string;
+	abstract protected function getLinkPattern(): string;
 
-	abstract protected function getFilePattern() : string;
+	abstract protected function getFilePattern(): string;
 
-	public function check( SymfonyStyle $style, array &$failedLinks = [], array &$skippedLinks = [] ) : int
+	public function check( SymfonyStyle $style, array &$failedLinks, array &$skippedLinks ): int
 	{
 		$baseUrlQuoted   = preg_quote( $this->baseUrl, '#' );
 		$outputDirQuoted = preg_quote( $this->outputDir, '#' );
@@ -69,12 +70,12 @@ abstract class AbstractLinkChecker
 			$filename = basename( $filePath );
 			$progressBar->setMessage( $filename );
 
-			foreach ( $fileLinks as $link )
+			foreach ( (array)$fileLinks as $link )
 			{
 				try
 				{
 					# Convert relative anchor links
-					if ( $link{0} == '#' )
+					if ( $link{0} === '#' )
 					{
 						$link = sprintf(
 							'%s%s%s',
@@ -86,8 +87,20 @@ abstract class AbstractLinkChecker
 
 					if ( !preg_match( "#^{$baseUrlQuoted}#", $link ) )
 					{
+						if ( preg_match( '#^javascript\:#i', $link ) )
+						{
+							$skippedLinks[] = [$filePath, $link, 'JavaScript'];
+							continue;
+						}
+
+						if ( preg_match( '#^mailto\:#i', $link ) )
+						{
+							$skippedLinks[] = [$filePath, $link, 'Mailto'];
+							continue;
+						}
+
 						# Convert relative URLs
-						if ( $link{0} != '/' && !preg_match( "#^https?\://#i", $link ) )
+						if ( $link{0} !== '/' && !preg_match( '#^https?\://#i', $link ) )
 						{
 							$link = sprintf(
 								'%s%s/%s',
@@ -97,15 +110,15 @@ abstract class AbstractLinkChecker
 							);
 						}
 						# Mark absolute URLs without base URL as failure
-						elseif ( $link{0} == '/' )
+						elseif ( $link{0} === '/' )
 						{
-							$failedLinks[] = [ $filePath, $link, 'No base URL' ];
+							$failedLinks[] = [$filePath, $link, 'No base URL'];
 							continue;
 						}
 						# Skip all external links
 						else
 						{
-							$skippedLinks[] = [ $filePath, $link, 'External link' ];
+							$skippedLinks[] = [$filePath, $link, 'External link'];
 							continue;
 						}
 					}
@@ -115,17 +128,18 @@ abstract class AbstractLinkChecker
 
 					if ( $response !== 200 )
 					{
-						$failedLinks[] = [ $filePath, $link, $response ];
+						$failedLinks[] = [$filePath, $link, $response];
 					}
 				}
 				catch ( \Throwable $e )
 				{
 					$response                    = $e->getMessage();
-					$failedLinks[]               = [ $filePath, $link, $response ];
+					$failedLinks[]               = [$filePath, $link, $response];
 					$this->checkedLinks[ $link ] = $response;
 				}
 			}
 
+			/** @noinspection DisconnectedForeachInstructionInspection */
 			$progressBar->advance();
 		}
 
@@ -136,7 +150,7 @@ abstract class AbstractLinkChecker
 		return empty( $failedLinks ) ? 0 : 1;
 	}
 
-	private function collectLinks() : array
+	private function collectLinks(): array
 	{
 		$links = [];
 		$dir   = new \RecursiveDirectoryIterator(
@@ -161,7 +175,7 @@ abstract class AbstractLinkChecker
 		return $links;
 	}
 
-	private function getResponseCode( string $url ) : int
+	private function getResponseCode( string $url ): int
 	{
 		$ch = curl_init();
 

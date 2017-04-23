@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2016-2017 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -16,6 +16,7 @@ namespace IceHawk\StaticPageGenerator\ConsoleCommands;
 use IceHawk\StaticPageGenerator\Exceptions\ConfigNotFound;
 use IceHawk\StaticPageGenerator\Formatters\ByteFormatter;
 use IceHawk\StaticPageGenerator\Sitemap\XmlSitemap;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -24,6 +25,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Class GenerateSitemap
+ *
  * @package IceHawk\StaticPageGenerator\ConsoleCommands
  */
 final class GenerateSitemap extends AbstractConsoleCommand
@@ -81,7 +83,7 @@ final class GenerateSitemap extends AbstractConsoleCommand
 					),
 					sprintf(
 						'Time elapsed: %f Seconds',
-						round( (microtime( true ) - $startTime), 6 )
+						round( microtime( true ) - $startTime, 6 )
 					),
 				]
 			);
@@ -92,7 +94,7 @@ final class GenerateSitemap extends AbstractConsoleCommand
 		return 0;
 	}
 
-	private function getOverwrites( InputInterface $input ) : array
+	private function getOverwrites( InputInterface $input ): array
 	{
 		$overwrites = [];
 
@@ -101,22 +103,16 @@ final class GenerateSitemap extends AbstractConsoleCommand
 		return array_filter( $overwrites );
 	}
 
-	private function saveSitemap( string $outputDir, string $fileName, string $content ) : bool
+	private function saveSitemap( string $outputDir, string $fileName, string $content ): bool
 	{
 		$outputFile    = $this->getFullPath( $outputDir, $fileName );
 		$outputFileDir = dirname( $outputFile );
-		$result        = true;
 
-		if ( !file_exists( $outputFileDir ) )
+		if ( !@mkdir( $outputFileDir, 0777, true ) && !is_dir( $outputFileDir ) )
 		{
-			$result = mkdir( $outputFileDir, 0777, true );
+			throw new RuntimeException( 'Could not create output directory: ' . $outputFileDir );
 		}
 
-		if ( $result )
-		{
-			$result = (bool)file_put_contents( $outputFile, $content );
-		}
-
-		return $result;
+		return (bool)file_put_contents( $outputFile, $content );
 	}
 }

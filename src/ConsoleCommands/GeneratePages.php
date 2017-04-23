@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2016-2017 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,6 +18,7 @@ use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig;
 use IceHawk\StaticPageGenerator\Exceptions\ConfigNotFound;
 use IceHawk\StaticPageGenerator\Exceptions\InvalidRenderer;
 use IceHawk\StaticPageGenerator\Formatters\ByteFormatter;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -26,6 +27,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Class GeneratePages
+ *
  * @package IceHawk\StaticPageGenerator\ConsoleCommands
  */
 final class GeneratePages extends AbstractConsoleCommand
@@ -74,6 +76,7 @@ final class GeneratePages extends AbstractConsoleCommand
 
 				$this->savePage( $projectConfig->getOutputDir(), $pageConfig->getUri(), $pageContent );
 
+				/** @noinspection DisconnectedForeachInstructionInspection */
 				$progressBar->advance();
 			}
 
@@ -97,7 +100,7 @@ final class GeneratePages extends AbstractConsoleCommand
 					),
 					sprintf(
 						'Time elapsed: %f Seconds',
-						round( (microtime( true ) - $startTime), 6 )
+						round( microtime( true ) - $startTime, 6 )
 					),
 				]
 			);
@@ -108,7 +111,7 @@ final class GeneratePages extends AbstractConsoleCommand
 		return 0;
 	}
 
-	private function getOverwrites( InputInterface $input ) : array
+	private function getOverwrites( InputInterface $input ): array
 	{
 		$overwrites = [];
 
@@ -117,7 +120,7 @@ final class GeneratePages extends AbstractConsoleCommand
 		return array_filter( $overwrites );
 	}
 
-	private function generatePage( PageConfig $pageConfig, ProjectConfig $projectConfig ) : string
+	private function generatePage( PageConfig $pageConfig, ProjectConfig $projectConfig ): string
 	{
 		try
 		{
@@ -153,33 +156,25 @@ final class GeneratePages extends AbstractConsoleCommand
 		}
 	}
 
-	private function getContentWithReplacements( string $pageContent, ProjectConfig $projectConfig ) : string
+	private function getContentWithReplacements( string $pageContent, ProjectConfig $projectConfig ): string
 	{
 		$replacements = $projectConfig->getReplacements();
 		$search       = array_keys( $replacements );
 		$replace      = array_values( $replacements );
 
-		$contentWithReplacements = str_replace( $search, $replace, $pageContent );
-
-		return $contentWithReplacements;
+		return str_replace( $search, $replace, $pageContent );
 	}
 
-	private function savePage( string $outputDir, string $fileName, string $content ) : bool
+	private function savePage( string $outputDir, string $fileName, string $content ): bool
 	{
 		$outputFile    = $this->getFullPath( $outputDir, $fileName );
 		$outputFileDir = dirname( $outputFile );
-		$result        = true;
 
-		if ( !file_exists( $outputFileDir ) )
+		if ( !@mkdir( $outputFileDir, 0777, true ) && !is_dir( $outputFileDir ) )
 		{
-			$result = mkdir( $outputFileDir, 0777, true );
+			throw new RuntimeException( 'Could not create output directory: ' . $outputFileDir );
 		}
 
-		if ( $result )
-		{
-			$result = (bool)file_put_contents( $outputFile, $content );
-		}
-
-		return $result;
+		return (bool)file_put_contents( $outputFile, $content );
 	}
 }

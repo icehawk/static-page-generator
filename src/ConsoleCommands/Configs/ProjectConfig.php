@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2016-2017 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,6 +19,7 @@ use IceHawk\StaticPageGenerator\Exceptions\ParentPageConfigNotFound;
 
 /**
  * Class ProjectConfig
+ *
  * @package IceHawk\StaticPageGenerator\ConsoleCommands\Configs
  */
 final class ProjectConfig
@@ -35,17 +36,17 @@ final class ProjectConfig
 		$this->configData    = $configData;
 	}
 
-	public function getName() : string
+	public function getName(): string
 	{
 		return $this->getValue( 'name' );
 	}
 
-	public function getBaseUrl() : string
+	public function getBaseUrl(): string
 	{
 		return $this->getValue( 'baseUrl' );
 	}
 
-	public function getOutputDir() : string
+	public function getOutputDir(): string
 	{
 		$outputDir = $this->getValue( 'outputDir' );
 
@@ -59,7 +60,7 @@ final class ProjectConfig
 		return $outputDirReal;
 	}
 
-	public function getContentsDir() : string
+	public function getContentsDir(): string
 	{
 		$contentsDir = $this->getValue( 'contentsDir' );
 
@@ -73,7 +74,7 @@ final class ProjectConfig
 		return $contentsDirReal;
 	}
 
-	public function getReplacements() : array
+	public function getReplacements(): array
 	{
 		$replacements = $this->configData['replacements'] ?? [];
 
@@ -83,17 +84,17 @@ final class ProjectConfig
 		return $replacements;
 	}
 
-	private function getValue( $key ) : string
+	private function getValue( $key ): string
 	{
 		return $this->configData[ $key ] ?? '';
 	}
 
-	public function getPageConfigsAtLevel( int $pageLevel ) : \Generator
+	public function getPageConfigsAtLevel( int $pageLevel ): \Generator
 	{
 		yield from $this->getPageConfigsByFilter(
 			function ( array $pageConfig ) use ( $pageLevel )
 			{
-				return (($pageConfig['pageLevel'] ?? -1) == $pageLevel);
+				return (($pageConfig['pageLevel'] ?? -1) === $pageLevel);
 			}
 		);
 	}
@@ -101,7 +102,7 @@ final class ProjectConfig
 	/**
 	 * @return \Generator|PageConfig[]
 	 */
-	public function getAllPages() : \Generator
+	public function getAllPages(): \Generator
 	{
 		yield from $this->getPageConfigsByFilter();
 	}
@@ -111,7 +112,7 @@ final class ProjectConfig
 	 *
 	 * @return \Generator|PageConfig[]
 	 */
-	public function getPageConfigsByFilter( callable $filter = null ) : \Generator
+	public function getPageConfigsByFilter( callable $filter = null ): \Generator
 	{
 		$pagesConfig = $this->configData['pages'] ?? [];
 
@@ -129,7 +130,7 @@ final class ProjectConfig
 	/**
 	 * @return array|PageConfig[][]
 	 */
-	public function getPageConfigsGroupedByTag() : array
+	public function getPageConfigsGroupedByTag(): array
 	{
 		$tagReferences = [];
 
@@ -143,7 +144,7 @@ final class ProjectConfig
 				}
 				else
 				{
-					$tagReferences[ $tag ] = [ $pageConfig ];
+					$tagReferences[ $tag ] = [$pageConfig];
 				}
 			}
 		}
@@ -151,22 +152,22 @@ final class ProjectConfig
 		return $tagReferences;
 	}
 
-	public function getChildrenOf( PageConfig $pageConfig ) : \Generator
+	public function getChildrenOf( PageConfig $pageConfig ): \Generator
 	{
 		yield from $this->getPageConfigsByFilter(
 			function ( array $configData, string $uri ) use ( $pageConfig )
 			{
-				return in_array( $uri, $pageConfig->getChildren() );
+				return in_array( $uri, $pageConfig->getChildren(), true );
 			}
 		);
 	}
 
-	public function getPageConfigForUri( string $uri ) : PageConfig
+	public function getPageConfigForUri( string $uri ): PageConfig
 	{
 		$pageConfigs = $this->getPageConfigsByFilter(
 			function ( array $pageConfig, string $configUri ) use ( $uri )
 			{
-				return ($configUri == $uri);
+				return ($configUri === $uri);
 			}
 		);
 
@@ -180,11 +181,11 @@ final class ProjectConfig
 		throw (new PageConfigNotFound())->withUri( $uri );
 	}
 
-	private function getParentOf( PageConfig $pageConfig ) : PageConfig
+	private function getParentOf( PageConfig $pageConfig ): PageConfig
 	{
 		$pageUri = $pageConfig->getUri();
 
-		if ( $pageConfig->getPageLevel() == 1 )
+		if ( $pageConfig->getPageLevel() === 1 )
 		{
 			throw (new ParentPageConfigNotFound())->forChildUri( $pageUri );
 		}
@@ -193,8 +194,8 @@ final class ProjectConfig
 		$pageConfigs = $this->getPageConfigsByFilter(
 			function ( array $configData ) use ( $parentLevel, $pageUri )
 			{
-				return (($configData['pageLevel'] ?? -1) == $parentLevel)
-				       && in_array( $pageUri, $configData['children'] ?? [] );
+				return (($configData['pageLevel'] ?? -1) === $parentLevel)
+					&& in_array( $pageUri, $configData['children'] ?? [], true );
 			}
 		);
 
@@ -208,9 +209,9 @@ final class ProjectConfig
 		throw (new ParentPageConfigNotFound())->forChildUri( $pageUri );
 	}
 
-	public function getBreadCrumbFor( PageConfig $pageConfig ) : array
+	public function getBreadCrumbFor( PageConfig $pageConfig ): array
 	{
-		$breadCrumb = [ $pageConfig->getUri() => $pageConfig->getNavName() ];
+		$breadCrumb = [$pageConfig->getUri() => $pageConfig->getNavName()];
 
 		try
 		{
@@ -226,7 +227,7 @@ final class ProjectConfig
 		return $breadCrumb;
 	}
 
-	public function getUrl( string $path ) : string
+	public function getUrl( string $path ): string
 	{
 		return $this->getBaseUrl() . $path;
 	}
