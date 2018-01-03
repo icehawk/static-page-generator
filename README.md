@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/icehawk/static-page-generator.svg?branch=master)](https://travis-ci.org/icehawk/static-page-generator)
+
 # IceHawk\StaticPageGenerator
 
 ## Installation
