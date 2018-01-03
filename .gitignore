@@ -1,16 +1,7 @@
-.idea
-
-# vagrant
-.vagrant/
-vagrant
-
-# composer
-vendor/
-composer.lock
-
-# locally generated docs
-build/api/
-build/phpdox/
-build/logs/
-build/output/
-!.gitkeep
+/.idea/
+/vendor/
+/composer.lock
+/build/logs/
+/build/output/
+!/build/output/.gitkeep
+/build/*.phar*
