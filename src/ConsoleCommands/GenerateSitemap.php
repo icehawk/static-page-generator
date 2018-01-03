@@ -33,7 +33,7 @@ final class GenerateSitemap extends AbstractConsoleCommand
 	/** @var SymfonyStyle */
 	private $style;
 
-	protected function configure()
+	protected function configure() : void
 	{
 		$this->setDescription( 'Generates static sitemap for the given config.' );
 		$this->addOption( 'baseUrl', 'b', InputOption::VALUE_OPTIONAL, 'Overwrites baseUrl setting in Project.json' );
@@ -45,7 +45,14 @@ final class GenerateSitemap extends AbstractConsoleCommand
 		);
 	}
 
-	protected function execute( InputInterface $input, OutputInterface $output )
+	/**
+	 * @param \Symfony\Component\Console\Input\InputInterface   $input
+	 * @param \Symfony\Component\Console\Output\OutputInterface $output
+	 *
+	 * @return int
+	 * @throws \IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound
+	 */
+	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
 		$startTime     = microtime( true );
 		$this->style   = new SymfonyStyle( $input, $output );
@@ -73,6 +80,12 @@ final class GenerateSitemap extends AbstractConsoleCommand
 
 			return 1;
 		}
+		catch ( RuntimeException $e )
+		{
+			$this->style->error( $e->getMessage() );
+
+			return 1;
+		}
 		finally
 		{
 			$this->style->block(
@@ -94,7 +107,7 @@ final class GenerateSitemap extends AbstractConsoleCommand
 		return 0;
 	}
 
-	private function getOverwrites( InputInterface $input ): array
+	private function getOverwrites( InputInterface $input ) : array
 	{
 		$overwrites = [];
 
@@ -103,10 +116,18 @@ final class GenerateSitemap extends AbstractConsoleCommand
 		return array_filter( $overwrites );
 	}
 
-	private function saveSitemap( string $outputDir, string $fileName, string $content ): bool
+	/**
+	 * @param string $outputDir
+	 * @param string $fileName
+	 * @param string $content
+	 *
+	 * @return bool
+	 * @throws RuntimeException
+	 */
+	private function saveSitemap( string $outputDir, string $fileName, string $content ) : bool
 	{
 		$outputFile    = $this->getFullPath( $outputDir, $fileName );
-		$outputFileDir = dirname( $outputFile );
+		$outputFileDir = \dirname( $outputFile );
 
 		if ( !@mkdir( $outputFileDir, 0777, true ) && !is_dir( $outputFileDir ) )
 		{

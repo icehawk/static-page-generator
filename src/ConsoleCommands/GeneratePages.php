@@ -35,7 +35,7 @@ final class GeneratePages extends AbstractConsoleCommand
 	/** @var SymfonyStyle */
 	private $style;
 
-	protected function configure()
+	protected function configure() : void
 	{
 		$this->setDescription( 'Generates static pages for the given config.' );
 		$this->addOption( 'baseUrl', 'b', InputOption::VALUE_OPTIONAL, 'Overwrites baseUrl setting in Project.json' );
@@ -47,7 +47,15 @@ final class GeneratePages extends AbstractConsoleCommand
 		);
 	}
 
-	protected function execute( InputInterface $input, OutputInterface $output )
+	/**
+	 * @param \Symfony\Component\Console\Input\InputInterface   $input
+	 * @param \Symfony\Component\Console\Output\OutputInterface $output
+	 *
+	 * @return int
+	 * @throws \IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound
+	 * @throws \Symfony\Component\Console\Exception\RuntimeException
+	 */
+	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
 		$startTime     = microtime( true );
 		$this->style   = new SymfonyStyle( $input, $output );
@@ -63,7 +71,7 @@ final class GeneratePages extends AbstractConsoleCommand
 
 			$pages = iterator_to_array( $projectConfig->getAllPages() );
 
-			$progressBar = $this->style->createProgressBar( count( $pages ) );
+			$progressBar = $this->style->createProgressBar( \count( $pages ) );
 			$progressBar->setFormat( ' %current%/%max% [%bar%] %percent:3s%% | %message%' );
 			$progressBar->start();
 
@@ -83,6 +91,8 @@ final class GeneratePages extends AbstractConsoleCommand
 			$progressBar->setMessage( 'All pages generated.' );
 			$progressBar->finish();
 			$this->style->text( '' );
+
+			return 0;
 		}
 		catch ( ConfigNotFound $e )
 		{
@@ -107,11 +117,9 @@ final class GeneratePages extends AbstractConsoleCommand
 
 			$this->style->text( '<fg=green>√ Done</>' );
 		}
-
-		return 0;
 	}
 
-	private function getOverwrites( InputInterface $input ): array
+	private function getOverwrites( InputInterface $input ) : array
 	{
 		$overwrites = [];
 
@@ -120,7 +128,14 @@ final class GeneratePages extends AbstractConsoleCommand
 		return array_filter( $overwrites );
 	}
 
-	private function generatePage( PageConfig $pageConfig, ProjectConfig $projectConfig ): string
+	/**
+	 * @param \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig    $pageConfig
+	 * @param \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig $projectConfig
+	 *
+	 * @return string
+	 * @throws \IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound
+	 */
+	private function generatePage( PageConfig $pageConfig, ProjectConfig $projectConfig ) : string
 	{
 		try
 		{
@@ -156,7 +171,7 @@ final class GeneratePages extends AbstractConsoleCommand
 		}
 	}
 
-	private function getContentWithReplacements( string $pageContent, ProjectConfig $projectConfig ): string
+	private function getContentWithReplacements( string $pageContent, ProjectConfig $projectConfig ) : string
 	{
 		$replacements = $projectConfig->getReplacements();
 		$search       = array_keys( $replacements );
@@ -165,10 +180,18 @@ final class GeneratePages extends AbstractConsoleCommand
 		return str_replace( $search, $replace, $pageContent );
 	}
 
-	private function savePage( string $outputDir, string $fileName, string $content ): bool
+	/**
+	 * @param string $outputDir
+	 * @param string $fileName
+	 * @param string $content
+	 *
+	 * @return bool
+	 * @throws RuntimeException
+	 */
+	private function savePage( string $outputDir, string $fileName, string $content ) : bool
 	{
 		$outputFile    = $this->getFullPath( $outputDir, $fileName );
-		$outputFileDir = dirname( $outputFile );
+		$outputFileDir = \dirname( $outputFile );
 
 		if ( !@mkdir( $outputFileDir, 0777, true ) && !is_dir( $outputFileDir ) )
 		{

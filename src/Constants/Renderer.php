@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,13 +19,15 @@ namespace IceHawk\StaticPageGenerator\Constants;
  */
 abstract class Renderer
 {
-	const TWIG     = 'twig';
+	public const TWIG     = 'twig';
 
-	const HTML     = 'html';
+	public const HTML     = 'html';
 
-	const MARKDOWN = 'markdown';
+	public const MARKDOWN = 'markdown';
 
-	const ALL      = [
-		self::TWIG, self::HTML, self::MARKDOWN,
+	public const ALL      = [
+		self::TWIG,
+		self::HTML,
+		self::MARKDOWN,
 	];
 }

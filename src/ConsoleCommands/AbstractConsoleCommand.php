@@ -36,6 +36,13 @@ abstract class AbstractConsoleCommand extends Command
 		return rtrim( $dir, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . ltrim( $file, DIRECTORY_SEPARATOR );
 	}
 
+	/**
+	 * @param string $configPath
+	 * @param array  $overwrites
+	 *
+	 * @return \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig
+	 * @throws \IceHawk\StaticPageGenerator\Exceptions\ConfigNotFound
+	 */
 	final protected function loadConfig( string $configPath, array $overwrites ): ProjectConfig
 	{
 		if ( $configPath[0] !== '/' )
@@ -51,6 +58,6 @@ abstract class AbstractConsoleCommand extends Command
 		$configData = json_decode( file_get_contents( $configPath ), true );
 		$configData = array_merge( $configData, $overwrites );
 
-		return new ProjectConfig( dirname( $configPath ), $configData );
+		return new ProjectConfig( \dirname( $configPath ), $configData );
 	}
 }

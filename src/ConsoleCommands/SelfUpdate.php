@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,13 +27,18 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class SelfUpdate extends Command
 {
-	protected function configure()
+	/**
+	 * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
+	 */
+	protected function configure() : void
 	{
-		$this->setAliases( [ 'selfupdate' ] );
+		$this->setAliases( ['selfupdate'] );
 		$this->setDescription( 'Updates this PHAR to latest version.' );
 
 		$this->addOption(
-			'stability', 's', InputOption::VALUE_OPTIONAL,
+			'stability',
+			's',
+			InputOption::VALUE_OPTIONAL,
 			sprintf(
 				'Specify the stability (%s, %s or %s)',
 				GithubStrategy::STABLE,
@@ -44,7 +49,14 @@ final class SelfUpdate extends Command
 		);
 	}
 
-	protected function execute( InputInterface $input, OutputInterface $output )
+	/**
+	 * @param \Symfony\Component\Console\Input\InputInterface   $input
+	 * @param \Symfony\Component\Console\Output\OutputInterface $output
+	 *
+	 * @return int
+	 * @throws \Humbug\SelfUpdate\Exception\InvalidArgumentException
+	 */
+	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
 		$logger  = new ConsoleLogger( $output );
 		$updater = new Updater( null, false, Updater::STRATEGY_GITHUB );

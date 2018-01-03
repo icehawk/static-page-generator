@@ -26,7 +26,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class RollBack extends Command
 {
-	protected function configure()
+	protected function configure() : void
 	{
 		$this->setDescription( 'Rolls back this PHAR to the previous version.' );
 	}

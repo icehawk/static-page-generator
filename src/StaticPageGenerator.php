@@ -36,6 +36,13 @@ final class StaticPageGenerator extends Application
 		$this->instances = [];
 	}
 
+	/**
+	 * @param string $renderer
+	 * @param array  $searchPaths
+	 *
+	 * @return \IceHawk\StaticPageGenerator\Interfaces\RendersTemplate
+	 * @throws \IceHawk\StaticPageGenerator\Exceptions\InvalidRenderer
+	 */
 	public function getTemplateRenderer( string $renderer, array $searchPaths ) : RendersTemplate
 	{
 		switch ( $renderer )

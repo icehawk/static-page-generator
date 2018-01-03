@@ -39,6 +39,15 @@ final class Twig implements RendersTemplate
 		$this->twigEnvironment->addExtension( new \Twig_Extension_Debug() );
 	}
 
+	/**
+	 * @param string $template
+	 * @param array  $data
+	 *
+	 * @return string
+	 * @throws \Twig_Error_Loader
+	 * @throws \Twig_Error_Runtime
+	 * @throws \Twig_Error_Syntax
+	 */
 	public function render( string $template, array $data = [] ) : string
 	{
 		return $this->twigEnvironment->render( $template, $data );

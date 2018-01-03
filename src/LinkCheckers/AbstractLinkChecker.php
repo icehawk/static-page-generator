@@ -59,7 +59,7 @@ abstract class AbstractLinkChecker
 		$baseUrlQuoted   = preg_quote( $this->baseUrl, '#' );
 		$outputDirQuoted = preg_quote( $this->outputDir, '#' );
 		$links           = $this->collectLinks();
-		$totalLinks      = count( $links );
+		$totalLinks      = \count( $links );
 		$progressBar     = $style->createProgressBar( $totalLinks );
 
 		$progressBar->setFormat( ' %current%/%max% [%bar%] %percent:3s%% | %message%' );
@@ -105,7 +105,7 @@ abstract class AbstractLinkChecker
 							$link = sprintf(
 								'%s%s/%s',
 								$this->baseUrl,
-								dirname( preg_replace( "#^{$outputDirQuoted}#", '', $filePath ) ),
+								\dirname( preg_replace( "#^{$outputDirQuoted}#", '', $filePath ) ),
 								$link
 							);
 						}

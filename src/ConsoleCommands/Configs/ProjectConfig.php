@@ -46,6 +46,10 @@ final class ProjectConfig
 		return $this->getValue( 'baseUrl' );
 	}
 
+	/**
+	 * @return string
+	 * @throws \IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound
+	 */
 	public function getOutputDir(): string
 	{
 		$outputDir = $this->getValue( 'outputDir' );
@@ -60,6 +64,10 @@ final class ProjectConfig
 		return $outputDirReal;
 	}
 
+	/**
+	 * @return string
+	 * @throws \IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound
+	 */
 	public function getContentsDir(): string
 	{
 		$contentsDir = $this->getValue( 'contentsDir' );
@@ -157,11 +165,17 @@ final class ProjectConfig
 		yield from $this->getPageConfigsByFilter(
 			function ( array $configData, string $uri ) use ( $pageConfig )
 			{
-				return in_array( $uri, $pageConfig->getChildren(), true );
+				return \in_array( $uri, $pageConfig->getChildren(), true );
 			}
 		);
 	}
 
+	/**
+	 * @param string $uri
+	 *
+	 * @return \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig
+	 * @throws \IceHawk\StaticPageGenerator\Exceptions\PageConfigNotFound
+	 */
 	public function getPageConfigForUri( string $uri ): PageConfig
 	{
 		$pageConfigs = $this->getPageConfigsByFilter(
@@ -173,7 +187,7 @@ final class ProjectConfig
 
 		$pageConfigs = iterator_to_array( $pageConfigs );
 
-		if ( count( $pageConfigs ) === 1 )
+		if ( \count( $pageConfigs ) === 1 )
 		{
 			return $pageConfigs[0];
 		}
@@ -181,6 +195,12 @@ final class ProjectConfig
 		throw (new PageConfigNotFound())->withUri( $uri );
 	}
 
+	/**
+	 * @param \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig $pageConfig
+	 *
+	 * @return \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig
+	 * @throws \IceHawk\StaticPageGenerator\Exceptions\ParentPageConfigNotFound
+	 */
 	private function getParentOf( PageConfig $pageConfig ): PageConfig
 	{
 		$pageUri = $pageConfig->getUri();
@@ -195,13 +215,13 @@ final class ProjectConfig
 			function ( array $configData ) use ( $parentLevel, $pageUri )
 			{
 				return (($configData['pageLevel'] ?? -1) === $parentLevel)
-					&& in_array( $pageUri, $configData['children'] ?? [], true );
+					   && \in_array( $pageUri, $configData['children'] ?? [], true );
 			}
 		);
 
 		$pageConfigs = iterator_to_array( $pageConfigs );
 
-		if ( count( $pageConfigs ) === 1 )
+		if ( \count( $pageConfigs ) === 1 )
 		{
 			return $pageConfigs[0];
 		}
