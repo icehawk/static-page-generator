@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -15,6 +15,7 @@ namespace IceHawk\StaticPageGenerator;
 
 use IceHawk\StaticPageGenerator\ConsoleCommands\CheckLinks;
 use IceHawk\StaticPageGenerator\ConsoleCommands\GeneratePages;
+use IceHawk\StaticPageGenerator\ConsoleCommands\GenerateSearchIndex;
 use IceHawk\StaticPageGenerator\ConsoleCommands\GenerateSitemap;
 use IceHawk\StaticPageGenerator\ConsoleCommands\RollBack;
 use IceHawk\StaticPageGenerator\ConsoleCommands\SelfUpdate;
@@ -22,10 +23,10 @@ use IceHawk\StaticPageGenerator\ConsoleCommands\SelfUpdate;
 error_reporting( -1 );
 ini_set( 'display_errors', 'On' );
 
-require(__DIR__ . '/../vendor/autoload.php');
+require __DIR__ . '/../vendor/autoload.php';
 
-define( 'PHAR_DIR', dirname( __DIR__ ) );
-define( 'WORKING_DIR', getcwd() );
+\define( 'PHAR_DIR', \dirname( __DIR__ ) );
+\define( 'WORKING_DIR', getcwd() );
 
 try
 {
@@ -34,6 +35,7 @@ try
 		[
 			new GeneratePages( 'generate:pages' ),
 			new GenerateSitemap( 'generate:sitemap' ),
+			new GenerateSearchIndex( 'generate:search-index' ),
 			new CheckLinks( 'check:links' ),
 			new SelfUpdate( 'self-update' ),
 			new RollBack( 'rollback' ),
@@ -44,7 +46,7 @@ try
 }
 catch ( \Throwable $e )
 {
-	echo "Uncaught " . get_class( $e ) . " with message: " . $e->getMessage() . "\n";
+	echo 'Uncaught ' . \get_class( $e ) . ' with message: ' . $e->getMessage() . "\n";
 	echo $e->getTraceAsString();
 	exit( 1 );
 }
