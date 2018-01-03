@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2016-2017 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -11,4 +11,4 @@
  * all copies or substantial portions of the Software.
  */
 
-require(__DIR__ . '/../../vendor/autoload.php');
+require __DIR__ . '/../vendor/autoload.php';
