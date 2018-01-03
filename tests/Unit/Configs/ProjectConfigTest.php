@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * Copyright (c) 2016-2017 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -15,12 +15,13 @@ namespace IceHawk\StaticPageGenerator\Tests\Unit\Configs;
 
 use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig;
 use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ProjectConfigTest
  * @package IceHawk\StaticPageGenerator\Tests\Unit\Configs
  */
-class ProjectConfigTest extends \PHPUnit_Framework_TestCase
+class ProjectConfigTest extends TestCase
 {
 	/** @var ProjectConfig */
 	private $projectConfig;
@@ -34,10 +35,13 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
 		$this->projectConfig = new ProjectConfig( $configDir, $configData );
 	}
 
+	/**
+	 * @throws \IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound
+	 */
 	public function testCanGetProjectData()
 	{
-		$outputDirReal   = realpath( __DIR__ . '/../../../build/output' );
-		$contentsDirReal = realpath( __DIR__ . '/../Fixtures/Contents' );
+		$outputDirReal   = \dirname( __DIR__, 3 ) . '/build/output';
+		$contentsDirReal = \dirname( __DIR__ ) . '/Fixtures/Contents';
 
 		$this->assertEquals( 'IceHawk', $this->projectConfig->getName() );
 		$this->assertEquals( 'https://icehawk.github.io', $this->projectConfig->getBaseUrl() );
@@ -61,6 +65,7 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
 	 * @param int $expectedCount
 	 *
 	 * @dataProvider pageLevelProvider
+	 * @throws \PHPUnit\Framework\Exception
 	 */
 	public function testCanGetPageConfigsAtLevel( int $level, int $expectedCount )
 	{
@@ -79,10 +84,16 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
 	public function pageLevelProvider() : array
 	{
 		return [
-			[1, 1], [2, 2], [3, 1], [4, 3],
+			[1, 1],
+			[2, 2],
+			[3, 1],
+			[4, 3],
 		];
 	}
 
+	/**
+	 * @throws \PHPUnit\Framework\Exception
+	 */
 	public function testCanGetAllPageConfigs()
 	{
 		$pageConfigs = $this->projectConfig->getPageConfigsByFilter();
@@ -97,15 +108,18 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals( 7, $count );
 	}
 
+	/**
+	 * @throws \PHPUnit\Framework\Exception
+	 */
 	public function testCanGetChildrenOfAPage()
 	{
 		$pageConfig = new PageConfig(
 			'/unit/test',
 			[
 				'children' => [
-					"/docs/icehawk/installation.html",
-					"/docs/icehawk/configuration.html",
-					"/docs/icehawk/delegation.html",
+					'/docs/icehawk/installation.html',
+					'/docs/icehawk/configuration.html',
+					'/docs/icehawk/delegation.html',
 				],
 			]
 		);
@@ -123,25 +137,42 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals( 3, $count );
 	}
 
+	/**
+	 * @throws \PHPUnit\Framework\Exception
+	 */
 	public function testCanGetPagesGroupedByTags()
 	{
 		$groupedPages = $this->projectConfig->getPageConfigsGroupedByTag();
 
 		$expectedTags = [
-			'PHP', 'CQRS', 'API', 'IceHawk', 'components', 'applications', 'pubsub', 'session', 'forms', 'routing',
-			'publish', 'subscribe', 'documentation', 'installation', 'configuration', 'delegation',
+			'PHP',
+			'CQRS',
+			'API',
+			'IceHawk',
+			'components',
+			'applications',
+			'pubsub',
+			'session',
+			'forms',
+			'routing',
+			'publish',
+			'subscribe',
+			'documentation',
+			'installation',
+			'configuration',
+			'delegation',
 		];
 
 		$this->assertEquals( $expectedTags, array_keys( $groupedPages ) );
 
-		$this->assertEquals( 1, count( $groupedPages['PHP'] ) );
-		$this->assertEquals( 2, count( $groupedPages['CQRS'] ) );
-		$this->assertEquals( 1, count( $groupedPages['API'] ) );
-		$this->assertEquals( 7, count( $groupedPages['IceHawk'] ) );
+		$this->assertCount( 1, $groupedPages['PHP'] );
+		$this->assertCount( 2, $groupedPages['CQRS'] );
+		$this->assertCount( 1, $groupedPages['API'] );
+		$this->assertCount( 7, $groupedPages['IceHawk'] );
 
 		foreach ( $groupedPages as $pageConfigs )
 		{
-			foreach ( $pageConfigs as $pageConfig )
+			foreach ( (array)$pageConfigs as $pageConfig )
 			{
 				$this->assertInstanceOf( PageConfig::class, $pageConfig );
 			}
@@ -153,6 +184,7 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
 	 * @param string $expectedPageTitle
 	 *
 	 * @dataProvider uriProvider
+	 * @throws \IceHawk\StaticPageGenerator\Exceptions\PageConfigNotFound
 	 */
 	public function testCanGetPageByUri( string $uri, string $expectedPageTitle )
 	{
@@ -187,6 +219,7 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
 	 * @param array  $expectedBreadCrumb
 	 *
 	 * @dataProvider breadCrumbProvider
+	 * @throws \IceHawk\StaticPageGenerator\Exceptions\PageConfigNotFound
 	 */
 	public function testCanGetBreadCrumbForPageConfig( string $uri, array $expectedBreadCrumb )
 	{
