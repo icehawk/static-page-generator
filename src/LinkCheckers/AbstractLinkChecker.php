@@ -187,6 +187,10 @@ abstract class AbstractLinkChecker
 		curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, $this->readTimeout );
 		curl_setopt( $ch, CURLOPT_TIMEOUT, $this->readTimeout );
 		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, true );
+		/** @noinspection CurlSslServerSpoofingInspection */
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, 0 );
+		/** @noinspection CurlSslServerSpoofingInspection */
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
 
 		curl_exec( $ch );
 		$response = curl_getinfo( $ch );
