@@ -19,9 +19,12 @@
     "padraic/phar-updater": "~1.0.4",
     "erusev/parsedown-extra": "~0.7",
     "twig/twig": "~2.0",
-    "roave/security-advisories": "dev-master"
+    "ext-dom": "*",
+    "ext-json": "*",
+    "ext-curl": "*"
   },
   "require-dev": {
+    "roave/security-advisories": "dev-master",
     "tm/tooly-composer-script": "^1.0"
   },
   "autoload": {
