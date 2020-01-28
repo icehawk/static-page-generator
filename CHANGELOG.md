@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a CHANGELOG](http://keepachangelog.com).
 
+## [1.4.2] - 2020-01-28
+
+### Fixed
+
+- Compatibility with PHP 7.4
+- Several inspection issues
+
+### Changed
+
+- Minimum PHP version is now 7.3
+
 ## [1.4.1] - 2018-01-07
 
 ### Fixed
@@ -48,6 +59,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a CH
 
 - First stable release
 
+[1.4.2]: https://github.com/icehawk/static-page-generator/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/icehawk/static-page-generator/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/icehawk/static-page-generator/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/icehawk/static-page-generator/compare/v1.3.0...v1.3.1
