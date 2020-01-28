@@ -5,3 +5,4 @@
 /build/output/
 !/build/output/.gitkeep
 /build/*.phar*
+/build/.phpunit.result.cache
