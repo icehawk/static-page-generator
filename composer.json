@@ -13,7 +13,7 @@
     "source": "https://github.com/icehawk/static-page-generator"
   },
   "require": {
-    "php": ">=7.1",
+    "php": ">=7.3",
     "symfony/console": "~4.0",
     "psr/log": "~1.0.2",
     "padraic/phar-updater": "~1.0.4",
