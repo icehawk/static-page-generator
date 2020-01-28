@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 /**
- * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
+ * Copyright (c) 2016-2020 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -13,11 +13,13 @@
 
 namespace IceHawk\StaticPageGenerator\Exceptions;
 
+use Exception;
+
 /**
  * Class StaticPageGeneratorException
  * @package IceHawk\StaticPageGenerator\Exceptions
  */
-class StaticPageGeneratorException extends \Exception
+class StaticPageGeneratorException extends Exception
 {
 
 }

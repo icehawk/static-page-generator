@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
+ * Copyright (c) 2016-2020 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -13,6 +13,7 @@
 
 namespace IceHawk\StaticPageGenerator\ConsoleCommands;
 
+use Humbug\SelfUpdate\Exception\InvalidArgumentException;
 use Humbug\SelfUpdate\Strategy\GithubStrategy;
 use Humbug\SelfUpdate\Updater;
 use Symfony\Component\Console\Command\Command;
@@ -32,9 +33,12 @@ final class SelfUpdate extends Command
 	 */
 	protected function configure() : void
 	{
+		/** @noinspection UnusedFunctionResultInspection */
 		$this->setAliases( ['selfupdate'] );
+		/** @noinspection UnusedFunctionResultInspection */
 		$this->setDescription( 'Updates this PHAR to latest version.' );
 
+		/** @noinspection UnusedFunctionResultInspection */
 		$this->addOption(
 			'stability',
 			's',
@@ -50,11 +54,11 @@ final class SelfUpdate extends Command
 	}
 
 	/**
-	 * @param \Symfony\Component\Console\Input\InputInterface   $input
-	 * @param \Symfony\Component\Console\Output\OutputInterface $output
+	 * @param InputInterface  $input
+	 * @param OutputInterface $output
 	 *
 	 * @return int
-	 * @throws \Humbug\SelfUpdate\Exception\InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{

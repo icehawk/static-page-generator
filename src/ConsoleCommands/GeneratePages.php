@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
+ * Copyright (c) 2016-2020 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -16,6 +16,7 @@ namespace IceHawk\StaticPageGenerator\ConsoleCommands;
 use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig;
 use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig;
 use IceHawk\StaticPageGenerator\Exceptions\ConfigNotFound;
+use IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound;
 use IceHawk\StaticPageGenerator\Exceptions\InvalidRenderer;
 use IceHawk\StaticPageGenerator\Formatters\ByteFormatter;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -24,6 +25,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function count;
+use function dirname;
 
 /**
  * Class GeneratePages
@@ -37,8 +40,11 @@ final class GeneratePages extends AbstractConsoleCommand
 
 	protected function configure() : void
 	{
+		/** @noinspection UnusedFunctionResultInspection */
 		$this->setDescription( 'Generates static pages for the given config.' );
+		/** @noinspection UnusedFunctionResultInspection */
 		$this->addOption( 'baseUrl', 'b', InputOption::VALUE_OPTIONAL, 'Overwrites baseUrl setting in Project.json' );
+		/** @noinspection UnusedFunctionResultInspection */
 		$this->addArgument(
 			'config',
 			InputArgument::OPTIONAL,
@@ -48,12 +54,12 @@ final class GeneratePages extends AbstractConsoleCommand
 	}
 
 	/**
-	 * @param \Symfony\Component\Console\Input\InputInterface   $input
-	 * @param \Symfony\Component\Console\Output\OutputInterface $output
+	 * @param InputInterface  $input
+	 * @param OutputInterface $output
 	 *
 	 * @return int
-	 * @throws \IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound
-	 * @throws \Symfony\Component\Console\Exception\RuntimeException
+	 * @throws DirectoryNotFound
+	 * @throws RuntimeException
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
@@ -71,7 +77,7 @@ final class GeneratePages extends AbstractConsoleCommand
 
 			$pages = iterator_to_array( $projectConfig->getAllPages() );
 
-			$progressBar = $this->style->createProgressBar( \count( $pages ) );
+			$progressBar = $this->style->createProgressBar( count( $pages ) );
 			$progressBar->setFormat( ' %current%/%max% [%bar%] %percent:3s%% | %message%' );
 			$progressBar->start();
 
@@ -129,11 +135,11 @@ final class GeneratePages extends AbstractConsoleCommand
 	}
 
 	/**
-	 * @param \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig    $pageConfig
-	 * @param \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig $projectConfig
+	 * @param PageConfig    $pageConfig
+	 * @param ProjectConfig $projectConfig
 	 *
 	 * @return string
-	 * @throws \IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound
+	 * @throws DirectoryNotFound
 	 */
 	private function generatePage( PageConfig $pageConfig, ProjectConfig $projectConfig ) : string
 	{
@@ -191,7 +197,7 @@ final class GeneratePages extends AbstractConsoleCommand
 	private function savePage( string $outputDir, string $fileName, string $content ) : bool
 	{
 		$outputFile    = $this->getFullPath( $outputDir, $fileName );
-		$outputFileDir = \dirname( $outputFile );
+		$outputFileDir = dirname( $outputFile );
 
 		if ( !@mkdir( $outputFileDir, 0777, true ) && !is_dir( $outputFileDir ) )
 		{

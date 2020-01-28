@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 /**
- * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
+ * Copyright (c) 2016-2020 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -13,6 +13,8 @@
 
 namespace IceHawk\StaticPageGenerator\Sitemap;
 
+use DOMDocument;
+use DOMElement;
 use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig;
 
 /**
@@ -21,7 +23,7 @@ use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig;
  */
 final class XmlSitemap
 {
-	/** @var \DOMDocument */
+	/** @var DOMDocument */
 	private $dom;
 
 	/** @var ProjectConfig */
@@ -29,7 +31,7 @@ final class XmlSitemap
 
 	public function __construct( ProjectConfig $projectConfig )
 	{
-		$this->dom               = new \DOMDocument( '1.0', 'UTF-8' );
+		$this->dom               = new DOMDocument( '1.0', 'UTF-8' );
 		$this->dom->formatOutput = true;
 
 		$this->projectConfig = $projectConfig;
@@ -39,12 +41,13 @@ final class XmlSitemap
 	{
 		$urlSet = $this->getUrlSet();
 
+		/** @noinspection UnusedFunctionResultInspection */
 		$this->dom->appendChild( $urlSet );
 
 		return $this->dom->saveXML();
 	}
 
-	private function getUrlSet() : \DOMElement
+	private function getUrlSet() : DOMElement
 	{
 		$urlSet = $this->dom->createElementNS( 'http://www.sitemaps.org/schemas/sitemap/0.9', 'urlset' );
 		$urlSet->setAttributeNS(
@@ -58,9 +61,7 @@ final class XmlSitemap
 			'http://www.google.com/schemas/sitemap-video/1.1'
 		);
 
-		$allPages = $this->projectConfig->getAllPages();
-
-		foreach ( $allPages as $page )
+		foreach ( $this->projectConfig->getAllPages() as $page )
 		{
 			$urlElement = $this->getUrlElement(
 				$this->projectConfig->getUrl( $page->getUri() ),
@@ -68,13 +69,14 @@ final class XmlSitemap
 				$page->getPageTitle()
 			);
 
+			/** @noinspection UnusedFunctionResultInspection */
 			$urlSet->appendChild( $urlElement );
 		}
 
 		return $urlSet;
 	}
 
-	private function getUrlElement( string $url, string $imageUrl, string $imageCaption ) : \DOMElement
+	private function getUrlElement( string $url, string $imageUrl, string $imageCaption ) : DOMElement
 	{
 		$urlElement = $this->dom->createElement( 'url' );
 		$homeLoc    = $this->dom->createElement( 'loc', $url );
@@ -83,10 +85,14 @@ final class XmlSitemap
 		$imageLoc = $this->dom->createElement( 'image:loc', $imageUrl );
 		$imageCap = $this->dom->createElement( 'image:caption', $imageCaption );
 
+		/** @noinspection UnusedFunctionResultInspection */
 		$image->appendChild( $imageLoc );
+		/** @noinspection UnusedFunctionResultInspection */
 		$image->appendChild( $imageCap );
 
+		/** @noinspection UnusedFunctionResultInspection */
 		$urlElement->appendChild( $homeLoc );
+		/** @noinspection UnusedFunctionResultInspection */
 		$urlElement->appendChild( $image );
 
 		return $urlElement;

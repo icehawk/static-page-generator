@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
+ * Copyright (c) 2016-2020 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -17,6 +17,7 @@ use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig;
 use IceHawk\StaticPageGenerator\Exceptions\ConfigNotFound;
 use IceHawk\StaticPageGenerator\StaticPageGenerator;
 use Symfony\Component\Console\Command\Command;
+use function dirname;
 
 /**
  * Class AbstractConsoleCommand
@@ -25,13 +26,15 @@ use Symfony\Component\Console\Command\Command;
  */
 abstract class AbstractConsoleCommand extends Command
 {
-	public function getEnv(): StaticPageGenerator
+	public function getEnv() : StaticPageGenerator
 	{
 		/** @var StaticPageGenerator $spg */
-		return $this->getApplication();
+		$spg = $this->getApplication();
+
+		return $spg;
 	}
 
-	final protected function getFullPath( string $dir, string $file ): string
+	final protected function getFullPath( string $dir, string $file ) : string
 	{
 		return rtrim( $dir, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . ltrim( $file, DIRECTORY_SEPARATOR );
 	}
@@ -40,10 +43,10 @@ abstract class AbstractConsoleCommand extends Command
 	 * @param string $configPath
 	 * @param array  $overwrites
 	 *
-	 * @return \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig
-	 * @throws \IceHawk\StaticPageGenerator\Exceptions\ConfigNotFound
+	 * @return ProjectConfig
+	 * @throws ConfigNotFound
 	 */
-	final protected function loadConfig( string $configPath, array $overwrites ): ProjectConfig
+	final protected function loadConfig( string $configPath, array $overwrites ) : ProjectConfig
 	{
 		if ( $configPath[0] !== '/' )
 		{
@@ -58,6 +61,6 @@ abstract class AbstractConsoleCommand extends Command
 		$configData = json_decode( file_get_contents( $configPath ), true );
 		$configData = array_merge( $configData, $overwrites );
 
-		return new ProjectConfig( \dirname( $configPath ), $configData );
+		return new ProjectConfig( dirname( $configPath ), $configData );
 	}
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 /**
- * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
+ * Copyright (c) 2016-2020 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -13,6 +13,7 @@
 
 namespace IceHawk\StaticPageGenerator;
 
+use Closure;
 use IceHawk\StaticPageGenerator\Constants\Renderer;
 use IceHawk\StaticPageGenerator\Exceptions\InvalidRenderer;
 use IceHawk\StaticPageGenerator\Interfaces\RendersTemplate;
@@ -40,8 +41,8 @@ final class StaticPageGenerator extends Application
 	 * @param string $renderer
 	 * @param array  $searchPaths
 	 *
-	 * @return \IceHawk\StaticPageGenerator\Interfaces\RendersTemplate
-	 * @throws \IceHawk\StaticPageGenerator\Exceptions\InvalidRenderer
+	 * @return RendersTemplate
+	 * @throws InvalidRenderer
 	 */
 	public function getTemplateRenderer( string $renderer, array $searchPaths ) : RendersTemplate
 	{
@@ -88,9 +89,9 @@ final class StaticPageGenerator extends Application
 		}
 	}
 
-	private function getSharedInstance( string $key, \Closure $createFunction )
+	private function getSharedInstance( string $key, Closure $createFunction )
 	{
-		if ( !isset($this->instances[ $key ]) )
+		if ( !isset( $this->instances[ $key ] ) )
 		{
 			$this->instances[ $key ] = $createFunction->call( $this );
 		}

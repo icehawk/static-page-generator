@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
+ * Copyright (c) 2016-2020 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -13,7 +13,13 @@
 
 namespace IceHawk\StaticPageGenerator\LinkCheckers;
 
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Throwable;
+use function count;
+use function dirname;
 
 /**
  * Class AbstractLinkChecker
@@ -59,7 +65,7 @@ abstract class AbstractLinkChecker
 		$baseUrlQuoted   = preg_quote( $this->baseUrl, '#' );
 		$outputDirQuoted = preg_quote( $this->outputDir, '#' );
 		$links           = $this->collectLinks();
-		$totalLinks      = \count( $links );
+		$totalLinks      = count( $links );
 		$progressBar     = $style->createProgressBar( $totalLinks );
 
 		$progressBar->setFormat( ' %current%/%max% [%bar%] %percent:3s%% | %message%' );
@@ -75,7 +81,7 @@ abstract class AbstractLinkChecker
 				try
 				{
 					# Convert relative anchor links
-					if ( $link{0} === '#' )
+					if ( $link[0] === '#' )
 					{
 						$link = sprintf(
 							'%s%s%s',
@@ -87,30 +93,30 @@ abstract class AbstractLinkChecker
 
 					if ( !preg_match( "#^{$baseUrlQuoted}#", $link ) )
 					{
-						if ( preg_match( '#^javascript\:#i', $link ) )
+						if ( preg_match( '#^javascript:#i', $link ) )
 						{
 							$skippedLinks[] = [$filePath, $link, 'JavaScript'];
 							continue;
 						}
 
-						if ( preg_match( '#^mailto\:#i', $link ) )
+						if ( preg_match( '#^mailto:#i', $link ) )
 						{
 							$skippedLinks[] = [$filePath, $link, 'Mailto'];
 							continue;
 						}
 
 						# Convert relative URLs
-						if ( $link{0} !== '/' && !preg_match( '#^https?\://#i', $link ) )
+						if ( $link[0] !== '/' && !preg_match( '#^https?://#i', $link ) )
 						{
 							$link = sprintf(
 								'%s%s/%s',
 								$this->baseUrl,
-								\dirname( preg_replace( "#^{$outputDirQuoted}#", '', $filePath ) ),
+								dirname( preg_replace( "#^{$outputDirQuoted}#", '', $filePath ) ),
 								$link
 							);
 						}
 						# Mark absolute URLs without base URL as failure
-						elseif ( $link{0} === '/' )
+						elseif ( strpos( $link, '/' ) === 0 )
 						{
 							$failedLinks[] = [$filePath, $link, 'No base URL'];
 							continue;
@@ -131,7 +137,7 @@ abstract class AbstractLinkChecker
 						$failedLinks[] = [$filePath, $link, $response];
 					}
 				}
-				catch ( \Throwable $e )
+				catch ( Throwable $e )
 				{
 					$response                    = $e->getMessage();
 					$failedLinks[]               = [$filePath, $link, $response];
@@ -139,7 +145,6 @@ abstract class AbstractLinkChecker
 				}
 			}
 
-			/** @noinspection DisconnectedForeachInstructionInspection */
 			$progressBar->advance();
 		}
 
@@ -153,14 +158,12 @@ abstract class AbstractLinkChecker
 	private function collectLinks(): array
 	{
 		$links = [];
-		$dir   = new \RecursiveDirectoryIterator(
+		$dir   = new RecursiveDirectoryIterator(
 			$this->outputDir,
-			\FilesystemIterator::CURRENT_AS_PATHNAME | \FilesystemIterator::SKIP_DOTS
+			FilesystemIterator::CURRENT_AS_PATHNAME | FilesystemIterator::SKIP_DOTS
 		);
 
-		$iterator = new \RecursiveIteratorIterator( $dir );
-
-		foreach ( $iterator as $filePath )
+		foreach ( new RecursiveIteratorIterator( $dir ) as $filePath )
 		{
 			if ( !preg_match( $this->filePattern, $filePath ) )
 			{
@@ -192,6 +195,7 @@ abstract class AbstractLinkChecker
 		/** @noinspection CurlSslServerSpoofingInspection */
 		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
 
+		/** @noinspection UnusedFunctionResultInspection */
 		curl_exec( $ch );
 		$response = curl_getinfo( $ch );
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
+ * Copyright (c) 2016-2020 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -15,7 +15,11 @@ namespace IceHawk\StaticPageGenerator\Tests\Unit\Configs;
 
 use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig;
 use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig;
+use IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound;
+use IceHawk\StaticPageGenerator\Exceptions\PageConfigNotFound;
+use PHPUnit\Framework\Exception;
 use PHPUnit\Framework\TestCase;
+use function dirname;
 
 /**
  * Class ProjectConfigTest
@@ -26,7 +30,7 @@ class ProjectConfigTest extends TestCase
 	/** @var ProjectConfig */
 	private $projectConfig;
 
-	public function setUp()
+	public function setUp() : void
 	{
 		$configDir  = __DIR__ . '/../Fixtures';
 		$configFile = $configDir . DIRECTORY_SEPARATOR . 'Project.json';
@@ -36,12 +40,12 @@ class ProjectConfigTest extends TestCase
 	}
 
 	/**
-	 * @throws \IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound
+	 * @throws DirectoryNotFound
 	 */
-	public function testCanGetProjectData()
+	public function testCanGetProjectData() : void
 	{
-		$outputDirReal   = \dirname( __DIR__, 3 ) . '/build/output';
-		$contentsDirReal = \dirname( __DIR__ ) . '/Fixtures/Contents';
+		$outputDirReal   = dirname( __DIR__, 3 ) . '/build/output';
+		$contentsDirReal = dirname( __DIR__ ) . '/Fixtures/Contents';
 
 		$this->assertEquals( 'IceHawk', $this->projectConfig->getName() );
 		$this->assertEquals( 'https://icehawk.github.io', $this->projectConfig->getBaseUrl() );
@@ -49,7 +53,7 @@ class ProjectConfigTest extends TestCase
 		$this->assertEquals( $contentsDirReal, $this->projectConfig->getContentsDir() );
 	}
 
-	public function testReplacementsIncludeProjectData()
+	public function testReplacementsIncludeProjectData() : void
 	{
 		$expectedReplacements = [
 			'@unit@'    => 'test',
@@ -65,9 +69,9 @@ class ProjectConfigTest extends TestCase
 	 * @param int $expectedCount
 	 *
 	 * @dataProvider pageLevelProvider
-	 * @throws \PHPUnit\Framework\Exception
+	 * @throws Exception
 	 */
-	public function testCanGetPageConfigsAtLevel( int $level, int $expectedCount )
+	public function testCanGetPageConfigsAtLevel( int $level, int $expectedCount ) : void
 	{
 		$pageConfigs = $this->projectConfig->getPageConfigsAtLevel( $level );
 
@@ -92,9 +96,9 @@ class ProjectConfigTest extends TestCase
 	}
 
 	/**
-	 * @throws \PHPUnit\Framework\Exception
+	 * @throws Exception
 	 */
-	public function testCanGetAllPageConfigs()
+	public function testCanGetAllPageConfigs() : void
 	{
 		$pageConfigs = $this->projectConfig->getPageConfigsByFilter();
 
@@ -109,9 +113,9 @@ class ProjectConfigTest extends TestCase
 	}
 
 	/**
-	 * @throws \PHPUnit\Framework\Exception
+	 * @throws Exception
 	 */
-	public function testCanGetChildrenOfAPage()
+	public function testCanGetChildrenOfAPage() : void
 	{
 		$pageConfig = new PageConfig(
 			'/unit/test',
@@ -138,9 +142,9 @@ class ProjectConfigTest extends TestCase
 	}
 
 	/**
-	 * @throws \PHPUnit\Framework\Exception
+	 * @throws Exception
 	 */
-	public function testCanGetPagesGroupedByTags()
+	public function testCanGetPagesGroupedByTags() : void
 	{
 		$groupedPages = $this->projectConfig->getPageConfigsGroupedByTag();
 
@@ -184,9 +188,9 @@ class ProjectConfigTest extends TestCase
 	 * @param string $expectedPageTitle
 	 *
 	 * @dataProvider uriProvider
-	 * @throws \IceHawk\StaticPageGenerator\Exceptions\PageConfigNotFound
+	 * @throws PageConfigNotFound
 	 */
-	public function testCanGetPageByUri( string $uri, string $expectedPageTitle )
+	public function testCanGetPageByUri( string $uri, string $expectedPageTitle ) : void
 	{
 		$pageConfig = $this->projectConfig->getPageConfigForUri( $uri );
 
@@ -207,10 +211,13 @@ class ProjectConfigTest extends TestCase
 	}
 
 	/**
-	 * @expectedException \IceHawk\StaticPageGenerator\Exceptions\PageConfigNotFound
+	 * @throws PageConfigNotFound
 	 */
-	public function testGetNotExistingPageThrowsException()
+	public function testGetNotExistingPageThrowsException() : void
 	{
+		$this->expectException( PageConfigNotFound::class );
+
+		/** @noinspection UnusedFunctionResultInspection */
 		$this->projectConfig->getPageConfigForUri( '/not/existing' );
 	}
 
@@ -219,9 +226,9 @@ class ProjectConfigTest extends TestCase
 	 * @param array  $expectedBreadCrumb
 	 *
 	 * @dataProvider breadCrumbProvider
-	 * @throws \IceHawk\StaticPageGenerator\Exceptions\PageConfigNotFound
+	 * @throws PageConfigNotFound
 	 */
-	public function testCanGetBreadCrumbForPageConfig( string $uri, array $expectedBreadCrumb )
+	public function testCanGetBreadCrumbForPageConfig( string $uri, array $expectedBreadCrumb ) : void
 	{
 		$pageConfig = $this->projectConfig->getPageConfigForUri( $uri );
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 /**
- * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
+ * Copyright (c) 2016-2020 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -14,6 +14,12 @@
 namespace IceHawk\StaticPageGenerator\Renderers;
 
 use IceHawk\StaticPageGenerator\Interfaces\RendersTemplate;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use Twig_Environment;
+use Twig_Extension_Debug;
+use Twig_Loader_Filesystem;
 
 /**
  * Class Twig
@@ -21,13 +27,13 @@ use IceHawk\StaticPageGenerator\Interfaces\RendersTemplate;
  */
 final class Twig implements RendersTemplate
 {
-	/** @var \Twig_Environment */
+	/** @var Twig_Environment */
 	private $twigEnvironment;
 
 	public function __construct( array $searchPaths )
 	{
-		$loader                = new \Twig_Loader_Filesystem( $searchPaths );
-		$this->twigEnvironment = new \Twig_Environment(
+		$loader                = new Twig_Loader_Filesystem( $searchPaths );
+		$this->twigEnvironment = new Twig_Environment(
 			$loader,
 			[
 				'debug'      => true,
@@ -36,7 +42,7 @@ final class Twig implements RendersTemplate
 			]
 		);
 
-		$this->twigEnvironment->addExtension( new \Twig_Extension_Debug() );
+		$this->twigEnvironment->addExtension( new Twig_Extension_Debug() );
 	}
 
 	/**
@@ -44,9 +50,9 @@ final class Twig implements RendersTemplate
 	 * @param array  $data
 	 *
 	 * @return string
-	 * @throws \Twig_Error_Loader
-	 * @throws \Twig_Error_Runtime
-	 * @throws \Twig_Error_Syntax
+	 * @throws RuntimeError
+	 * @throws SyntaxError
+	 * @throws LoaderError
 	 */
 	public function render( string $template, array $data = [] ) : string
 	{

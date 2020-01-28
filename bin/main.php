@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
+ * Copyright (c) 2016-2020 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -19,14 +19,18 @@ use IceHawk\StaticPageGenerator\ConsoleCommands\GenerateSearchIndex;
 use IceHawk\StaticPageGenerator\ConsoleCommands\GenerateSitemap;
 use IceHawk\StaticPageGenerator\ConsoleCommands\RollBack;
 use IceHawk\StaticPageGenerator\ConsoleCommands\SelfUpdate;
+use Throwable;
+use function define;
+use function dirname;
+use function get_class;
 
 error_reporting( -1 );
 ini_set( 'display_errors', 'On' );
 
 require __DIR__ . '/../vendor/autoload.php';
 
-\define( 'PHAR_DIR', \dirname( __DIR__ ) );
-\define( 'WORKING_DIR', getcwd() );
+define( 'PHAR_DIR', dirname( __DIR__ ) );
+define( 'WORKING_DIR', getcwd() );
 
 try
 {
@@ -44,9 +48,9 @@ try
 	$code = $app->run();
 	exit( $code );
 }
-catch ( \Throwable $e )
+catch ( Throwable $e )
 {
-	echo 'Uncaught ' . \get_class( $e ) . ' with message: ' . $e->getMessage() . "\n";
+	echo 'Uncaught ' . get_class( $e ) . ' with message: ' . $e->getMessage() . "\n";
 	echo $e->getTraceAsString();
 	exit( 1 );
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
+ * Copyright (c) 2016-2020 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -13,9 +13,12 @@
 
 namespace IceHawk\StaticPageGenerator\ConsoleCommands\Configs;
 
+use Generator;
 use IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound;
 use IceHawk\StaticPageGenerator\Exceptions\PageConfigNotFound;
 use IceHawk\StaticPageGenerator\Exceptions\ParentPageConfigNotFound;
+use function count;
+use function in_array;
 
 /**
  * Class ProjectConfig
@@ -48,7 +51,7 @@ final class ProjectConfig
 
 	/**
 	 * @return string
-	 * @throws \IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound
+	 * @throws DirectoryNotFound
 	 */
 	public function getOutputDir(): string
 	{
@@ -66,7 +69,7 @@ final class ProjectConfig
 
 	/**
 	 * @return string
-	 * @throws \IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound
+	 * @throws DirectoryNotFound
 	 */
 	public function getContentsDir(): string
 	{
@@ -82,7 +85,7 @@ final class ProjectConfig
 		return $contentsDirReal;
 	}
 
-	public function getReplacements(): array
+	public function getReplacements() : array
 	{
 		$replacements = $this->configData['replacements'] ?? [];
 
@@ -92,15 +95,15 @@ final class ProjectConfig
 		return $replacements;
 	}
 
-	private function getValue( $key ): string
+	private function getValue( $key ) : string
 	{
 		return $this->configData[ $key ] ?? '';
 	}
 
-	public function getPageConfigsAtLevel( int $pageLevel ): \Generator
+	public function getPageConfigsAtLevel( int $pageLevel ) : Generator
 	{
 		yield from $this->getPageConfigsByFilter(
-			function ( array $pageConfig ) use ( $pageLevel )
+			static function ( array $pageConfig ) use ( $pageLevel )
 			{
 				return (($pageConfig['pageLevel'] ?? -1) === $pageLevel);
 			}
@@ -108,9 +111,9 @@ final class ProjectConfig
 	}
 
 	/**
-	 * @return \Generator|PageConfig[]
+	 * @return Generator|PageConfig[]
 	 */
-	public function getAllPages(): \Generator
+	public function getAllPages() : Generator
 	{
 		yield from $this->getPageConfigsByFilter();
 	}
@@ -118,9 +121,9 @@ final class ProjectConfig
 	/**
 	 * @param callable $filter
 	 *
-	 * @return \Generator|PageConfig[]
+	 * @return Generator|PageConfig[]
 	 */
-	public function getPageConfigsByFilter( callable $filter = null ): \Generator
+	public function getPageConfigsByFilter( callable $filter = null ) : Generator
 	{
 		$pagesConfig = $this->configData['pages'] ?? [];
 
@@ -160,12 +163,12 @@ final class ProjectConfig
 		return $tagReferences;
 	}
 
-	public function getChildrenOf( PageConfig $pageConfig ): \Generator
+	public function getChildrenOf( PageConfig $pageConfig ) : Generator
 	{
 		yield from $this->getPageConfigsByFilter(
-			function ( array $configData, string $uri ) use ( $pageConfig )
+			static function ( array $configData, string $uri ) use ( $pageConfig )
 			{
-				return \in_array( $uri, $pageConfig->getChildren(), true );
+				return in_array( $uri, $pageConfig->getChildren(), true );
 			}
 		);
 	}
@@ -173,8 +176,8 @@ final class ProjectConfig
 	/**
 	 * @param string $uri
 	 *
-	 * @return \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig
-	 * @throws \IceHawk\StaticPageGenerator\Exceptions\PageConfigNotFound
+	 * @return PageConfig
+	 * @throws PageConfigNotFound
 	 */
 	public function getPageConfigForUri( string $uri ): PageConfig
 	{
@@ -187,7 +190,7 @@ final class ProjectConfig
 
 		$pageConfigs = iterator_to_array( $pageConfigs );
 
-		if ( \count( $pageConfigs ) === 1 )
+		if ( count( $pageConfigs ) === 1 )
 		{
 			return $pageConfigs[0];
 		}
@@ -196,10 +199,10 @@ final class ProjectConfig
 	}
 
 	/**
-	 * @param \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig $pageConfig
+	 * @param PageConfig $pageConfig
 	 *
-	 * @return \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\PageConfig
-	 * @throws \IceHawk\StaticPageGenerator\Exceptions\ParentPageConfigNotFound
+	 * @return PageConfig
+	 * @throws ParentPageConfigNotFound
 	 */
 	private function getParentOf( PageConfig $pageConfig ): PageConfig
 	{
@@ -215,13 +218,13 @@ final class ProjectConfig
 			function ( array $configData ) use ( $parentLevel, $pageUri )
 			{
 				return (($configData['pageLevel'] ?? -1) === $parentLevel)
-					   && \in_array( $pageUri, $configData['children'] ?? [], true );
+				       && in_array( $pageUri, $configData['children'] ?? [], true );
 			}
 		);
 
 		$pageConfigs = iterator_to_array( $pageConfigs );
 
-		if ( \count( $pageConfigs ) === 1 )
+		if ( count( $pageConfigs ) === 1 )
 		{
 			return $pageConfigs[0];
 		}

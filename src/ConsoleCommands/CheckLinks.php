@@ -1,6 +1,6 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
- * Copyright (c) 2016-2018 Holger Woltersdorf & Contributors
+ * Copyright (c) 2016-2020 Holger Woltersdorf & Contributors
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -13,8 +13,10 @@
 
 namespace IceHawk\StaticPageGenerator\ConsoleCommands;
 
+use Exception;
 use IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig;
 use IceHawk\StaticPageGenerator\Exceptions\ConfigNotFound;
+use IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound;
 use IceHawk\StaticPageGenerator\Formatters\ByteFormatter;
 use IceHawk\StaticPageGenerator\LinkCheckers\HtmlLinkChecker;
 use IceHawk\StaticPageGenerator\LinkCheckers\XmlSitemapLinkChecker;
@@ -24,6 +26,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function count;
 
 /**
  * Class CheckLinks
@@ -36,9 +39,13 @@ final class CheckLinks extends AbstractConsoleCommand
 
 	protected function configure() : void
 	{
+		/** @noinspection UnusedFunctionResultInspection */
 		$this->setDescription( 'Checks links in generated output.' );
+		/** @noinspection UnusedFunctionResultInspection */
 		$this->addOption( 'baseUrl', 'b', InputOption::VALUE_OPTIONAL, 'Overwrites baseUrl setting in Project.json' );
+		/** @noinspection UnusedFunctionResultInspection */
 		$this->addOption( 'generate', 'g', InputOption::VALUE_NONE, 'Generate output before checking links.' );
+		/** @noinspection UnusedFunctionResultInspection */
 		$this->addOption(
 			'timeout',
 			't',
@@ -46,6 +53,7 @@ final class CheckLinks extends AbstractConsoleCommand
 			'Defines the timeout in seconds to wait for each link.',
 			5
 		);
+		/** @noinspection UnusedFunctionResultInspection */
 		$this->addArgument(
 			'config',
 			InputArgument::OPTIONAL,
@@ -55,11 +63,11 @@ final class CheckLinks extends AbstractConsoleCommand
 	}
 
 	/**
-	 * @param \Symfony\Component\Console\Input\InputInterface   $input
-	 * @param \Symfony\Component\Console\Output\OutputInterface $output
+	 * @param InputInterface  $input
+	 * @param OutputInterface $output
 	 *
 	 * @return int
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) : int
 	{
@@ -86,10 +94,8 @@ final class CheckLinks extends AbstractConsoleCommand
 					]
 				);
 
-				$generateCommands = $this->getEnv()->all( 'generate' );
-
 				/** @var AbstractConsoleCommand $command */
-				foreach ( $generateCommands as $command )
+				foreach ( $this->getEnv()->all( 'generate' ) as $command )
 				{
 					$command->run( clone $generateInput, $output );
 				}
@@ -137,11 +143,11 @@ final class CheckLinks extends AbstractConsoleCommand
 	}
 
 	/**
-	 * @param \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig $projectConfig
-	 * @param int                                                                $readTimeout
+	 * @param ProjectConfig $projectConfig
+	 * @param int           $readTimeout
 	 *
 	 * @return int
-	 * @throws \IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound
+	 * @throws DirectoryNotFound
 	 */
 	private function checkHtmlLinks( ProjectConfig $projectConfig, int $readTimeout ) : int
 	{
@@ -160,7 +166,7 @@ final class CheckLinks extends AbstractConsoleCommand
 		{
 			$this->style->text( '' );
 			$this->style->text( '<fg=red>!! Some HTML links seem to be broken:</>' );
-			$headers = [ 'Filepath', 'Link', 'Response' ];
+			$headers = ['Filepath', 'Link', 'Response'];
 			$this->style->table( $headers, $failedLinks );
 		}
 		else
@@ -176,13 +182,13 @@ final class CheckLinks extends AbstractConsoleCommand
 			{
 				$this->style->text( '' );
 				$this->style->text( '<fg=yellow>Some HTML links have been skipped:</>' );
-				$headers = [ 'Filepath', 'Link', 'Reason' ];
+				$headers = ['Filepath', 'Link', 'Reason'];
 				$this->style->table( $headers, $skippedLinks );
 				$this->style->text( '' );
 			}
 			else
 			{
-				$skippedLinksCount = \count( $skippedLinks );
+				$skippedLinksCount = count( $skippedLinks );
 				$this->style->text( '' );
 				$this->style->text( "<fg=yellow>{$skippedLinksCount} HTML links have been skipped.</>" );
 				$this->style->text( '' );
@@ -193,11 +199,11 @@ final class CheckLinks extends AbstractConsoleCommand
 	}
 
 	/**
-	 * @param \IceHawk\StaticPageGenerator\ConsoleCommands\Configs\ProjectConfig $projectConfig
-	 * @param int                                                                $readTimeout
+	 * @param ProjectConfig $projectConfig
+	 * @param int           $readTimeout
 	 *
 	 * @return int
-	 * @throws \IceHawk\StaticPageGenerator\Exceptions\DirectoryNotFound
+	 * @throws DirectoryNotFound
 	 */
 	private function checkXmlSitemapLinks( ProjectConfig $projectConfig, int $readTimeout ) : int
 	{
@@ -216,7 +222,7 @@ final class CheckLinks extends AbstractConsoleCommand
 		{
 			$this->style->text( '' );
 			$this->style->text( '<fg=red>!! Some Sitemap links seem to be broken:</>' );
-			$headers = [ 'Filepath', 'Link', 'Response' ];
+			$headers = ['Filepath', 'Link', 'Response'];
 			$this->style->table( $headers, $failedLinks );
 		}
 		else
@@ -232,13 +238,13 @@ final class CheckLinks extends AbstractConsoleCommand
 			{
 				$this->style->text( '' );
 				$this->style->text( '<fg=yellow>Some Sitemap links have been skipped:</>' );
-				$headers = [ 'Filepath', 'Link', 'Reason' ];
+				$headers = ['Filepath', 'Link', 'Reason'];
 				$this->style->table( $headers, $skippedLinks );
 				$this->style->text( '' );
 			}
 			else
 			{
-				$skippedLinksCount = \count( $skippedLinks );
+				$skippedLinksCount = count( $skippedLinks );
 				$this->style->text( '' );
 				$this->style->text( "<fg=yellow>{$skippedLinksCount} Sitemap links have been skipped.</>" );
 				$this->style->text( '' );
